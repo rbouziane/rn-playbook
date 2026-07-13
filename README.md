@@ -49,8 +49,10 @@ Le kit suppose ces scripts dans `package.json` :
 Les conventions évoluent **ici**, jamais dans les projets consommateurs :
 
 1. Modifier la doc (et `eslint.js` si la règle est encodable) dans ce repo
-2. Committer, tagger si le changement est notable
-3. Dans chaque projet, monter la version : `yarn upgrade rn-playbook` (commit `⬆️`) — le changement de règle est ainsi un acte délibéré, projet par projet
+2. Committer, pusher, tagger si le changement est notable
+3. Dans chaque projet, monter la version : `yarn up rn-playbook` (commit `⬆️`) — le changement de règle est ainsi un acte délibéré, projet par projet. Un `yarn install` seul ne suffit pas : `yarn.lock` épingle le commit
+
+Pour tester une modif localement avant de la pusher : `yarn link <chemin-vers-rn-playbook>` dans le projet, puis revenir à la version GitHub une fois validée.
 
 Règle d'or : toute nouvelle convention récurrente s'encode en règle ESLint quand c'est possible, plutôt que seulement écrite dans la doc.
 
