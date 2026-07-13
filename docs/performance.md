@@ -77,7 +77,7 @@ Règles strictes pour ne pas casser le recyclage :
 
 - **Toujours typer `data`** explicitement (`data: Item[]`)
 - **`keyExtractor`** retourne un identifiant **stable et unique** (pas `index`, sauf liste vraiment statique)
-- **Images** : utiliser `react-native-fast-image` plutôt que `Image` standard pour le caching
+- **Images distantes** : utiliser un composant image avec cache (ex : `react-native-fast-image`) plutôt que `Image` standard
 - **Animations dans les items** : passer par `react-native-reanimated` (worklets sur le thread UI), jamais `Animated` JS
 - **Listes imbriquées** verticales/horizontales : préférer FlashList qui coordonne mieux les layouts parent/enfant
 
@@ -101,7 +101,7 @@ Règles strictes pour ne pas casser le recyclage :
 
 ## Optimisation
 
-Règles pour garder un re-render minimal et un thread JS fluide. **Mesurer avant d'optimiser** : utiliser **Reactotron** (déjà branché dans le projet) pour identifier les re-renders inutiles et les calculs coûteux avant d'ajouter des `memo`/`useMemo`/`useCallback` partout.
+Règles pour garder un re-render minimal et un thread JS fluide. **Mesurer avant d'optimiser** : utiliser l'outil de debug du projet (Reactotron, React DevTools Profiler…) pour identifier les re-renders inutiles et les calculs coûteux avant d'ajouter des `memo`/`useMemo`/`useCallback` partout.
 
 ### `useCallback`
 
@@ -256,6 +256,6 @@ Avant de livrer un écran, vérifier :
 - [ ] Aucun calcul coûteux n'est fait inline dans le JSX
 - [ ] Aucune valeur dérivée n'est stockée dans un `useState`
 - [ ] Les listes utilisent le bon composant (cf. « Listes & scroll » ci-dessus)
-- [ ] Les images utilisent `react-native-fast-image`
+- [ ] Les images distantes utilisent le composant image avec cache
 - [ ] Les animations passent par `react-native-reanimated`
 - [ ] Les Contexts sont splittés ou consommés via `useContextSelector`

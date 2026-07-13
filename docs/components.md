@@ -10,6 +10,7 @@ Règles d'écriture des composants React Native, style général du code, et ske
 - Un fichier = un composant public ; sous-composants privés au-dessus, principal en bas juste avant `export default`
 - Fonctions avant le `return` ; `useCallback` si prop d'un enfant `memo()`, dépendance de hook, ou passée à une liste
 - Logique hors JSX (variables avant le `return`), pas de ternaires imbriqués
+- Rendu conditionnel : booléen strict à gauche du `&&` (`count > 0 &&`, jamais `count &&`)
 - Accolades obligatoires, early return, pas d'`else` après `return`
 - Le code respire : lignes vides entre blocs, mais pas dans le bloc imports ni dans le JSX
 - Skeletons : préfixe `Skeleton`, dimensions explicites, à côté du composant qu'ils miment
@@ -208,6 +209,24 @@ const handlePress = useCallback(() => {
 
 return <Pressable onPress={handlePress} />;
 ```
+
+### Conditions dans le JSX : booléens stricts
+
+Un `&&` avec une valeur non-booléenne à gauche **rend la valeur** quand elle est falsy : `{count && <Badge />}` affiche `0`, et une string vide fait crasher RN (« Text strings must be rendered within a <Text> »). La condition d'un rendu conditionnel est toujours un **booléen strict**.
+
+```tsx
+// ❌ count vaut 0 → "0" est rendu ; name vaut '' → crash potentiel
+{props.count && <Badge count={props.count} />}
+{props.name && <Text>{props.name}</Text>}
+
+// ✅ comparaison explicite (de préférence extraite avant le return)
+const hasItems = props.count > 0;
+
+{hasItems && <Badge count={props.count} />}
+{props.name !== '' && <Text>{props.name}</Text>}
+```
+
+Même règle pour les props optionnelles : `props.icon != null && ...`, jamais `props.icon && ...` si le type n'est pas booléen.
 
 ### Logique hors JSX
 
