@@ -1,0 +1,22 @@
+{
+  "name": "rn-playbook",
+  "version": "1.0.0",
+  "description": "Conventions React Native + TypeScript : docs, recettes, et config ESLint partageable",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rbouziane/rn-playbook.git"
+  },
+  "author": "Ronan Bouziane",
+  "license": "UNLICENSED",
+  "main": "eslint.js",
+  "exports": {
+    ".": "./eslint.js",
+    "./eslint": "./eslint.js",
+    "./docs/*": "./docs/*"
+  },
+  "files": [
+    "docs",
+    "eslint.js",
+    "CLAUDE.template.md"
+  ]
+}
