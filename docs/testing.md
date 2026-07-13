@@ -52,18 +52,24 @@ describe('itemReducer', () => {
 - Modules natifs mockés **une fois** dans `jest.setup.js` (MMKV, keychain, crashlytics, reanimated…) — jamais de mock natif copié-collé par fichier
 - Ne pas mocker ce qu'on teste ; mocker uniquement les frontières (natif, réseau, temps)
 - Temps : `jest.useFakeTimers()` pour les timers, jamais de `setTimeout` réel dans un test
+- Comportement par plateforme : `jest.replaceProperty(Platform, 'OS', 'android')` dans un `beforeEach` (restauré automatiquement) — jamais de mock du module `Platform` entier
 
 ## Hooks — `renderHook`
+
+Dépendances dev : `@testing-library/react-native` + `test-renderer` (son peer
+depuis la v14). Depuis la **v14**, l'API est **asynchrone** : `renderHook`
+retourne une promesse et chaque `act` doit être awaité — un `act` non awaité
+produit des erreurs « overlapping act() calls » et des états jamais flushés.
 
 ```ts
 import { renderHook, act } from '@testing-library/react-native';
 
-it('decrements the timer each second', () => {
+it('decrements the timer each second', async () => {
   jest.useFakeTimers();
 
-  const { result } = renderHook(() => useGameTimer(10));
+  const { result } = await renderHook(() => useGameTimer(10));
 
-  act(() => {
+  await act(() => {
     jest.advanceTimersByTime(3000);
   });
 
