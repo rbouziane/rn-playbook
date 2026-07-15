@@ -9,6 +9,9 @@
   "author": "Ronan Bouziane",
   "license": "UNLICENSED",
   "main": "eslint.js",
+  "bin": {
+    "rn-playbook": "bin/rn-playbook.js"
+  },
   "exports": {
     ".": "./eslint.js",
     "./eslint": "./eslint.js",
@@ -17,6 +20,8 @@
   "files": [
     "docs",
     "eslint.js",
-    "CLAUDE.template.md"
+    "CLAUDE.template.md",
+    "templates",
+    "bin"
   ]
 }

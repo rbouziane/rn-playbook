@@ -8,7 +8,17 @@ L'index de la doc est [`docs/REACT-NATIVE.md`](./docs/REACT-NATIVE.md).
 
 ```sh
 yarn add -D rbouziane/rn-playbook
+npx rn-playbook init
 ```
+
+`init` fait tout le branchement, sans jamais écraser ton existant :
+
+- copie l'agent `rn-reviewer` et la commande `/review` dans `.claude/` ;
+- crée `CLAUDE.md` depuis le template s'il n'existe pas (jamais écrasé) ;
+- ajoute `require.resolve('rn-playbook/eslint')` en fin de `extends` dans `.eslintrc.js`/`.cjs` ;
+- ajoute les scripts qualité manquants dans `package.json` (les scripts existants sont conservés).
+
+Cas où `init` s'abstient et affiche une instruction manuelle plutôt que risquer d'abîmer une config : ESLint en config JSON/YAML/flat ou avec un `extends` en string, et `package.json` absent. Les étapes détaillées ci-dessous décrivent ces branchements pour les faire à la main au besoin.
 
 ### 1. ESLint
 
@@ -44,6 +54,17 @@ Le kit suppose ces scripts dans `package.json` :
 "quality": "yarn lint && yarn typecheck && yarn test"
 ```
 
+### 4. Review Claude
+
+Le package fournit de quoi relire le code produit contre les conventions :
+
+- l'agent `rn-reviewer` (lecture seule, calé sur les docs de `node_modules/rn-playbook/docs/`, s'appuie sur `yarn lint`) ;
+- la commande `/review` qui le déclenche sur le diff courant, en vérifiant qualité, perfs et conformité.
+
+Claude Code ne scanne pas `node_modules` : `npx rn-playbook init` copie l'agent dans `.claude/agents/` et la commande dans `.claude/commands/`. À relancer après chaque `yarn up rn-playbook` — le kit est rafraîchi, tes fichiers perso préservés.
+
+Le reste du pilotage passe par le prompt : le `CLAUDE.md` fait déjà pointer Claude vers les docs, donc « crée-moi tel écran » ou « écris les tests » suivent les conventions sans commande dédiée.
+
 ## Mise à jour des conventions
 
 Les conventions évoluent **ici**, jamais dans les projets consommateurs :
@@ -63,3 +84,6 @@ Règle d'or : toute nouvelle convention récurrente s'encode en règle ESLint qu
 | `docs/` | 23 fichiers de conventions — index dans `REACT-NATIVE.md` |
 | `eslint.js` | Config ESLint partageable (règles encodables des docs) |
 | `CLAUDE.template.md` | CLAUDE.md de base à copier et customiser par projet |
+| `templates/agents/` | Agent `rn-reviewer`, installé dans `.claude/agents/` par `rn-playbook init` |
+| `templates/commands/` | Commande `/review`, installée dans `.claude/commands/` par `rn-playbook init` |
+| `bin/rn-playbook.js` | CLI `npx rn-playbook init` — installe/rafraîchit les assets + branche eslint & scripts |
