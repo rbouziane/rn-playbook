@@ -18,9 +18,9 @@ Une partie des conventions est **enforced par ESLint** (`rn-playbook/eslint`) : 
 
 **Amélioration continue** : si une session révèle une ambiguïté ou un manque dans les conventions, le fix se fait dans le repo `rn-playbook` (~/Dev/rbouziane/rn-playbook), pas dans une copie locale. Une règle spécifique à CE projet uniquement se documente ici, dans ce fichier.
 
-<!-- Décommenter si le projet a des specs produit :
-Les specs produit sont dans **[`specs/`](./specs/)** — à lire quand on touche à <domaine>.
--->
+## Exploration du code — codebase-memory d'abord
+
+Pour explorer le code du projet (localiser une fonction/classe/route, comprendre l'architecture, tracer appelants et dépendances), utiliser **en premier** les outils `mcp__codebase-memory-mcp` : `search_graph`, `get_architecture`, `trace_call_path`, `get_code_snippet`. Ne pas partir sur `grep`/`glob`/lecture de fichiers en aveugle — ça gâche énormément de tokens. `grep`/`Read` ne sont qu'un repli pour du texte que le graphe ne couvre pas. Graphe non indexé → lancer `index_repository` d'abord.
 
 ## Git — gitflow strict
 

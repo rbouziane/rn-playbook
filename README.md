@@ -14,6 +14,7 @@ npx rn-playbook init
 `init` fait tout le branchement, sans jamais écraser ton existant :
 
 - copie l'agent `rn-reviewer` et la commande `/review` dans `.claude/` ;
+- installe les permissions Claude (allowlist RN + `codebase-memory`, `git push` bloqué) dans `.claude/settings.local.json` — **non commité**, ajouté au `.gitignore` ; fusionné sans écraser tes règles perso ;
 - crée `CLAUDE.md` depuis le template s'il n'existe pas (jamais écrasé) ;
 - ajoute `require.resolve('rn-playbook/eslint')` en fin de `extends` dans `.eslintrc.js`/`.cjs` ;
 - ajoute les scripts qualité manquants dans `package.json` (les scripts existants sont conservés).
@@ -86,4 +87,5 @@ Règle d'or : toute nouvelle convention récurrente s'encode en règle ESLint qu
 | `CLAUDE.template.md` | CLAUDE.md de base à copier et customiser par projet |
 | `templates/agents/` | Agent `rn-reviewer`, installé dans `.claude/agents/` par `rn-playbook init` |
 | `templates/commands/` | Commande `/review`, installée dans `.claude/commands/` par `rn-playbook init` |
+| `templates/settings.local.json` | Permissions Claude installées (fusionnées) dans `.claude/settings.local.json` par `rn-playbook init` |
 | `bin/rn-playbook.js` | CLI `npx rn-playbook init` — installe/rafraîchit les assets + branche eslint & scripts |

@@ -82,6 +82,73 @@ function patchPackageScripts() {
   return { status: 'ok', added, conflicts };
 }
 
+// Fusionne les tableaux de permissions (union, ordre existant préservé, sans doublon).
+function mergePermissionArray(existing, incoming) {
+  const merged = Array.isArray(existing) ? existing.slice() : [];
+  let added = 0;
+  for (const rule of incoming) {
+    if (!merged.includes(rule)) {
+      merged.push(rule);
+      added += 1;
+    }
+  }
+  return { merged, added };
+}
+
+// Installe/complète les permissions dans .claude/settings.local.json (non commité), sans rien écraser.
+function patchLocalSettings() {
+  const src = path.join(pkgRoot, 'templates', 'settings.local.json');
+  if (!fs.existsSync(src)) {
+    return { status: 'no-source' };
+  }
+  const wanted = JSON.parse(fs.readFileSync(src, 'utf8'));
+
+  const targetPath = path.join(cwd, '.claude', 'settings.local.json');
+  let current = { permissions: {} };
+  let existed = false;
+  if (fs.existsSync(targetPath)) {
+    existed = true;
+    try {
+      current = JSON.parse(fs.readFileSync(targetPath, 'utf8'));
+    } catch (e) {
+      return { status: 'unparseable' };
+    }
+  }
+  current.$schema = current.$schema || wanted.$schema;
+  current.permissions = current.permissions || {};
+
+  let total = 0;
+  for (const bucket of ['allow', 'deny', 'ask']) {
+    const { merged, added } = mergePermissionArray(current.permissions[bucket], wanted.permissions[bucket] || []);
+    current.permissions[bucket] = merged;
+    total += added;
+  }
+
+  if (!existed || total > 0) {
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.writeFileSync(targetPath, JSON.stringify(current, null, 2) + '\n');
+  }
+  return { status: 'ok', existed, added: total };
+}
+
+// Garantit que settings.local.json (perso) n'est pas versionné.
+function ensureGitignore() {
+  const rule = '.claude/settings.local.json';
+  const gitignorePath = path.join(cwd, '.gitignore');
+  let content = '';
+  if (fs.existsSync(gitignorePath)) {
+    content = fs.readFileSync(gitignorePath, 'utf8');
+    if (content.split(/\r?\n/).some((line) => line.trim() === rule)) {
+      return false;
+    }
+    if (content.length > 0 && !content.endsWith('\n')) {
+      content += '\n';
+    }
+  }
+  fs.writeFileSync(gitignorePath, `${content}${rule}\n`);
+  return true;
+}
+
 // Trouve les bornes d'un littéral tableau `extends: [ ... ]`, brackets équilibrés.
 function findExtendsArray(content) {
   const key = content.match(/extends\s*:\s*/);
@@ -184,6 +251,21 @@ function init() {
     path.join(cwd, '.claude', 'commands'),
   );
   log(`${GREEN}✓${RESET} ${commands} commande(s) → .claude/commands/`);
+
+  // Permissions Claude → settings.local.json (non commité), fusionnées sans écraser.
+  const settings = patchLocalSettings();
+  if (settings.status === 'ok' && (!settings.existed || settings.added > 0)) {
+    const detail = settings.existed ? `${settings.added} permission(s) ajoutée(s)` : 'créé';
+    log(`${GREEN}✓${RESET} .claude/settings.local.json — ${detail} ${DIM}(non commité)${RESET}`);
+    if (ensureGitignore()) {
+      log(`${GREEN}✓${RESET} .gitignore — settings.local.json exclu du versioning`);
+    }
+  } else if (settings.status === 'ok') {
+    log(`${YELLOW}•${RESET} .claude/settings.local.json — permissions déjà à jour`);
+    ensureGitignore();
+  } else if (settings.status === 'unparseable') {
+    log(`${YELLOW}•${RESET} .claude/settings.local.json existant illisible — laissé intact`);
+  }
 
   // CLAUDE.md — jamais écrasé (delta projet).
   const claudeTarget = path.join(cwd, 'CLAUDE.md');
