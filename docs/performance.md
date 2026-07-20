@@ -77,7 +77,7 @@ Règles strictes pour ne pas casser le recyclage :
 
 - **Toujours typer `data`** explicitement (`data: Item[]`)
 - **`keyExtractor`** retourne un identifiant **stable et unique** (pas `index`, sauf liste vraiment statique)
-- **Images distantes** : utiliser un composant image avec cache (ex : `react-native-fast-image`) plutôt que `Image` standard
+- **Images distantes** : utiliser un composant image avec cache (`@d11/react-native-fast-image`) plutôt que `Image` standard
 - **Animations dans les items** : passer par `react-native-reanimated` (worklets sur le thread UI), jamais `Animated` JS
 - **Listes imbriquées** verticales/horizontales : préférer FlashList qui coordonne mieux les layouts parent/enfant
 

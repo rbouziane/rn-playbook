@@ -59,7 +59,7 @@ import BombSvg from '~shared/assets/svg/bomb.svg';
 
 - PNG/WebP dans `assets/images/`, avec `@2x` / `@3x` (`card-back.png`, `card-back@2x.png`, `card-back@3x.png`)
 - `require()` statique (jamais de chemin dynamique construit à la volée — Metro ne peut pas les résoudre)
-- Images distantes : composant image avec cache (cf. [`performance.md`](./performance.md)), dimensions explicites pour éviter les layout shifts
+- Images distantes : **`@d11/react-native-fast-image`** pour le cache (`import FastImage from '@d11/react-native-fast-image'`) — dimensions explicites pour éviter les layout shifts (cf. [`performance.md`](./performance.md))
 
 ## Fonts
 

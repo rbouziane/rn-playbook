@@ -49,6 +49,11 @@ module.exports = {
             message:
               'AsyncStorage interdit — MMKV via getMMKV() (docs/storage.md).',
           },
+          {
+            name: 'react-native-fast-image',
+            message:
+              'react-native-fast-image (non maintenu) interdit — utiliser @d11/react-native-fast-image (docs/assets.md).',
+          },
         ],
         patterns: [
           {
