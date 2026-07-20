@@ -126,10 +126,21 @@ Mêmes règles pour les **types**, **hooks** et **enums**.
 
 Chaque feature expose un fichier `index.ts` à sa racine qui ré-exporte ce qui est consommable depuis l'extérieur. **Les imports cross-features passent obligatoirement par cet `index.ts`**, jamais par les chemins internes.
 
+Les ré-exports sont **groupés par catégorie**, chaque groupe précédé d'un commentaire de section (`// Components`, `// Hooks`…), dans cet **ordre fixe** :
+
+`Screens` → `Components` → `Contexts` → `Hooks` → `Services` → `Enums` → `Constants` → `Types` → `Trackers` → `Utils` → `Helpers`
+
+La catégorie suit le dossier d'origine du symbole (`components/` → `Components`, `hooks/` → `Hooks`, `enums/` → `Enums`…). Un hook de data-fetching (`services/hook`) va dans `Hooks` ; les autres exports de `services/` (api, reducer) dans `Services`. Un fichier à la racine de la feature (ex : `TrackingHelper`) va dans `Helpers`. On n'écrit que les sections réellement peuplées.
+
 ```ts
 // features/item/index.ts
+// Components
 export { default as ItemCard } from './components/ItemCard';
+
+// Hooks
 export { useItem } from './services/hook';
+
+// Types
 export type { Item } from './types/Item';
 ```
 
@@ -144,6 +155,8 @@ import ItemCard from '~features/item/components/ItemCard';
 Règles :
 
 - Re-export simple, **pas de renommage** à l'export (le nom externe = le nom interne)
+- Un export default se ré-exporte en nommé : `export { default as ItemCard }` — côté consommateur, il devient donc un import nommé (`import { ItemCard } from '~features/item'`)
+- Ré-exports **groupés par section commentée**, dans l'ordre fixe ci-dessus
 - Tout ce qui n'est pas dans `index.ts` est considéré comme **privé** à la feature
 - À l'intérieur d'une feature, on importe par chemins relatifs ou alias internes — pas par `~features/X` (pas d'auto-référence)
 
