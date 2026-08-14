@@ -46,6 +46,14 @@ Actif via `babel-plugin-react-compiler` (**premier plugin** de `babel.config.js`
 
 - **Ne jamais le déplacer** : il doit rester le premier plugin de la liste
 - Il ne remplace pas les règles `memo()`/`useCallback`/`useMemo` de [`performance.md`](./performance.md) : on les garde (le compiler bail out silencieusement sur le code qu'il ne sait pas prouver sûr)
+- Une deps list qui n'est pas faite d'expressions simples (`x`, `x.y.z`) fait **bail out le composant entier**, sans erreur ni warning — typiquement un appel de fonction dans le tableau
+- Conséquence pour `react-hook-form` : un enfant qui lit via `methods.watch()` gèle derrière un ancêtre compilé, cf. [`forms.md`](./forms.md)
+
+Vérifier ce que le compilateur fait réellement d'un fichier :
+
+```bash
+npx babel <fichier> --plugins babel-plugin-react-compiler
+```
 
 ## R8/ProGuard Android
 

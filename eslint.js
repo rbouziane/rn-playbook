@@ -34,6 +34,27 @@ module.exports = {
     // docs/data-fetching.md — prod logging goes through the crash reporter
     'no-console': ['warn', { allow: ['error', 'warn'] }],
 
+    // docs/forms.md — react-hook-form x React Compiler
+    'no-restricted-syntax': [
+      'error',
+      {
+        // A child reading through a `methods` prop: watch() only re-renders the
+        // useForm() owner, and a compiled ancestor caches the subtree away.
+        selector:
+          "CallExpression[callee.property.name='watch'][callee.object.object.name='props']",
+        message:
+          "Lecture d'un champ dans un enfant : useWatch({ control, name }) — methods.watch() gèle derrière un ancêtre compilé (docs/forms.md). Dans un callback : getValues().",
+      },
+      {
+        // A call expression in a deps list makes React Compiler bail out on the
+        // whole component, silently.
+        selector:
+          "CallExpression[callee.name=/^use(Memo|Callback|Effect|LayoutEffect)$/] > ArrayExpression CallExpression[callee.property.name='watch']",
+        message:
+          'watch() dans un tableau de dépendances fait bail out React Compiler sur tout le composant — extraire la valeur via useWatch (docs/forms.md).',
+      },
+    ],
+
     'no-restricted-imports': [
       'error',
       {
