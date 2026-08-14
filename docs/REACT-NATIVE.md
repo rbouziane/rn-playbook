@@ -19,6 +19,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 
 | Sujet | Fichier | Quand le lire |
 |---|---|---|
+| Nouveau projet | [`new-project.md`](./new-project.md) | Bootstrap d'un projet from scratch : init CLI, socle de dépendances, configs |
 | Arborescence, placement, types | [`architecture.md`](./architecture.md) | Création de feature, nouveau fichier, type ou enum |
 | Composants, code style, skeletons | [`components.md`](./components.md) | Création/édition de tout composant `.tsx` |
 | Hooks de logique | [`hooks.md`](./hooks.md) | Logique d'écran, hook métier, `useEffect` |

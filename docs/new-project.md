@@ -1,0 +1,169 @@
+# Nouveau projet
+
+Bootstrap d'un projet React Native + TypeScript conforme au playbook, de la génération au premier build vérifié.
+
+## Règles en bref
+
+- **Pas d'Expo** : `npx @react-native-community/cli@latest init MonProjet --pm yarn` — RN nu, config native accessible
+- Nom du projet en **PascalCase ASCII** sans tiret ni chiffre initial : il devient le module natif, le scheme Xcode et l'`applicationId`
+- Playbook branché **avant la première ligne de code** : `yarn add -D rbouziane/rn-playbook && npx rn-playbook init`
+- Tout le code applicatif vit sous **`app/`**, importé via l'alias `~` — jamais de source à la racine
+- Socle de dépendances installé **en une passe**, puis `pod install` + rebuild natif complet
+- Ordre des plugins babel non négociable : **react-compiler en premier, worklets/reanimated en dernier**
+- Bootstrap terminé = `yarn quality` vert + build **release** lancé sur les deux plateformes
+
+Le détail ci-dessous. Chaque étape renvoie au fichier de doc qui fait autorité sur le domaine.
+
+---
+
+## 1. Générer le projet
+
+```sh
+npx @react-native-community/cli@latest init MonProjet --pm yarn
+cd MonProjet
+```
+
+- `npx react-native init` est **mort** : le template est passé au CLI communautaire, seule commande valable aujourd'hui
+- `--pm yarn` évite le `package-lock.json` que le playbook interdit (cf. [`best-practices.md`](./best-practices.md#gestionnaire-de-paquets--yarn-jamais-npm))
+- Vérifier que la **New Architecture** est active (`newArchEnabled=true` dans `android/gradle.properties`) — elle l'est par défaut, ne pas la désactiver pour faire passer un paquet non compatible : c'est le paquet qu'on remplace
+- Premier commit du template **tel quel**, avant toute modification : le diff du bootstrap reste lisible
+
+Yarn 4 (Berry) : imposer `nodeLinker: node-modules` dans `.yarnrc.yml`. Metro et CocoaPods ne savent pas résoudre PnP — sans ça, le build natif casse sans message exploitable.
+
+Puis créer la branche d'intégration attendue par gitflow (cf. [`git-workflow.md`](./git-workflow.md)) :
+
+```sh
+git checkout -b develop
+```
+
+## 2. Brancher le playbook
+
+```sh
+yarn add -D rbouziane/rn-playbook
+npx rn-playbook init
+```
+
+`init` installe la config ESLint, le `CLAUDE.md`, les assets Claude et les scripts qualité — détail et branchements manuels dans le [README](../README.md#installation-dans-un-projet). Remplir les placeholders `<...>` du `CLAUDE.md` généré dans la foulée : stack réelle, scopes de commit, specs.
+
+## 3. Poser l'arborescence et l'alias `~`
+
+Créer `app/` et y déplacer `App.tsx`. La structure cible (features, shared, navigators, api, i18n) est décrite dans [`architecture.md`](./architecture.md#arborescence-racine) — **ne créer que les dossiers réellement utilisés**, pas de squelette vide.
+
+L'alias se déclare à deux endroits, sous peine d'un typecheck vert et d'un runtime cassé :
+
+```json
+// tsconfig.json — résolution TypeScript
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "~*": ["app/*"] }
+  }
+}
+```
+
+```js
+// babel.config.js — résolution Metro à l'exécution
+['module-resolver', { root: ['./app'], alias: { '~': './app' } }],
+```
+
+Mettre à jour l'`index.js` racine pour pointer sur `./app/App`.
+
+## 4. Installer le socle
+
+Une seule passe, puis `cd ios && pod install`. Chaque ligne est imposée par une convention — pas de substitution sans mise à jour de la doc correspondante.
+
+| Domaine | Paquets | Doc |
+| --- | --- | --- |
+| Navigation | `@react-navigation/native` `@react-navigation/native-stack` `react-native-screens` `react-native-safe-area-context` | [`navigation.md`](./navigation.md) |
+| Animations & gestes | `react-native-reanimated` `react-native-gesture-handler` | [`animations.md`](./animations.md) |
+| Data | `@tanstack/react-query` `axios` | [`data-fetching.md`](./data-fetching.md) |
+| Storage | `react-native-mmkv` `react-native-keychain` | [`storage.md`](./storage.md) |
+| Listes & UI | `@shopify/flash-list` `react-native-edge-to-edge` `react-native-skeleton-placeholder` | [`performance.md`](./performance.md), [`platform.md`](./platform.md) |
+| Assets | `react-native-svg` `@d11/react-native-fast-image` + `-D react-native-svg-transformer` `react-native-asset` | [`assets.md`](./assets.md) |
+| i18n | `i18n-js` | [`i18n.md`](./i18n.md) |
+| Formulaires | `react-hook-form` (dès ~3 champs interdépendants) | [`forms.md`](./forms.md) |
+| Crash reporting | `@react-native-firebase/app` `@react-native-firebase/crashlytics` | [`data-fetching.md`](./data-fetching.md#gestion-derreur) |
+| Build | `-D babel-plugin-react-compiler` `babel-plugin-transform-remove-console` `babel-plugin-module-resolver` | [`build-release.md`](./build-release.md) |
+| Tests | `-D @testing-library/react-native` `react-test-renderer` | [`testing.md`](./testing.md) |
+
+Tout paquet natif ajouté ensuite suit la [procédure d'installation](./build-release.md#installer-un-paquet-natif--procédure) : compatibilité New Architecture, `pod install`, rebuild complet, QA release.
+
+## 5. Configurer la toolchain
+
+### `babel.config.js`
+
+L'ordre des plugins est une contrainte dure : **react-compiler premier** (cf. [`build-release.md`](./build-release.md#react-compiler)), **worklets dernier**.
+
+```js
+module.exports = api => {
+  const isProduction = api.env('production');
+  api.cache.using(() => isProduction);
+
+  return {
+    presets: ['module:@react-native/babel-preset'],
+    plugins: [
+      ['babel-plugin-react-compiler', { target: '19' }],
+      ['module-resolver', { root: ['./app'], alias: { '~': './app' } }],
+      ...(isProduction
+        ? [['transform-remove-console', { exclude: ['error', 'warn'] }]]
+        : []),
+      'react-native-worklets/plugin',
+    ],
+  };
+};
+```
+
+Reanimated ≥ 4 : le plugin s'appelle `react-native-worklets/plugin` (paquet `react-native-worklets`). En ≤ 3, c'est `react-native-reanimated/plugin`. Dans les deux cas il reste **le dernier de la liste**, et toute modif du fichier impose `yarn start --reset-cache`.
+
+### `metro.config.js`
+
+Brancher le transformer SVG, sans quoi un `import BombSvg from '...svg'` renvoie une string ([`assets.md`](./assets.md#svg)) :
+
+```js
+const config = {
+  transformer: {
+    babelTransformerPath: require.resolve('react-native-svg-transformer'),
+  },
+  resolver: {
+    assetExts: defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg'),
+    sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'],
+  },
+};
+```
+
+Déclarer aussi le module `*.svg` dans un `app/types/svg.d.ts` pour que TypeScript suive.
+
+### `react-native.config.js`
+
+```js
+module.exports = { assets: ['./app/shared/assets/fonts'] };
+```
+
+Puis `npx react-native-asset` après chaque ajout de font.
+
+### `jest.setup.js`
+
+Mocker **une fois** les modules natifs (MMKV, keychain, crashlytics, reanimated, gesture-handler) et les déclarer dans `setupFiles` — jamais de mock natif recopié par fichier de test (cf. [`testing.md`](./testing.md#fixtures--mocks)).
+
+### Android release
+
+Activer `enableProguardInReleaseBuilds` et `shrinkResources` dans `android/app/build.gradle`, et créer `proguard-rules.pro` — détail et pièges dans [`build-release.md`](./build-release.md#r8proguard-android).
+
+## 6. Vérifier avant d'écrire la première feature
+
+```sh
+yarn ios && yarn android     # build debug sur les deux plateformes
+yarn quality                 # lint + typecheck + test
+```
+
+Checklist de sortie de bootstrap :
+
+- [ ] Un import `~shared/...` résout au **typecheck et au runtime**
+- [ ] Un `.svg` importé rend bien un composant
+- [ ] `console.log` absent d'un build release, `console.error` toujours présent
+- [ ] Un composant compilé par React Compiler (`useMemoCache` dans la sortie babel, cf. [`forms.md`](./forms.md#diagnostiquer))
+- [ ] Build **release** lancé et navigué sur les deux plateformes — pas seulement debug
+- [ ] `yarn quality` vert, `yarn.lock` commité
+
+Ensuite seulement : première feature, en suivant [`recipes.md`](./recipes.md#créer-une-feature).

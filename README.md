@@ -11,6 +11,8 @@ yarn add -D rbouziane/rn-playbook
 npx rn-playbook init
 ```
 
+Projet créé from scratch : la séquence complète (init CLI, arborescence, socle de dépendances, babel/metro) est dans [`docs/new-project.md`](./docs/new-project.md).
+
 `init` fait tout le branchement, sans jamais écraser ton existant :
 
 - copie l'agent `rn-reviewer` et la commande `/review` dans `.claude/` ;
@@ -82,7 +84,7 @@ Règle d'or : toute nouvelle convention récurrente s'encode en règle ESLint qu
 
 | Fichier | Rôle |
 |---|---|
-| `docs/` | 23 fichiers de conventions — index dans `REACT-NATIVE.md` |
+| `docs/` | 24 fichiers de conventions — index dans `REACT-NATIVE.md` |
 | `eslint.js` | Config ESLint partageable (règles encodables des docs) |
 | `CLAUDE.template.md` | CLAUDE.md de base à copier et customiser par projet |
 | `templates/agents/` | Agent `rn-reviewer`, installé dans `.claude/agents/` par `rn-playbook init` |

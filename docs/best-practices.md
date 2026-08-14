@@ -12,7 +12,7 @@ Le projet est verrouillé sur **Yarn** (voir `packageManager` dans `package.json
 - **Jamais** `npm install` / `npm run` → génère un `package-lock.json` qui entre en conflit avec `yarn.lock`.
 - Installer : `yarn` ou `yarn add <pkg>` (`yarn add -D <pkg>` en dev).
 - Lancer un script : `yarn <script>`.
-- Seule exception tolérée : `npx` pour un bootstrap CLI ponctuel (ex. `npx react-native@latest init`).
+- Seule exception tolérée : `npx` pour un bootstrap CLI ponctuel (ex. `npx @react-native-community/cli@latest init`, cf. [`new-project.md`](./new-project.md)).
 
 ```sh
 # ❌                          # ✅
