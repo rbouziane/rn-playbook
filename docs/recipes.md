@@ -2,6 +2,8 @@
 
 Checklists ordonnées pour les tâches récurrentes. Chaque recette liste les fichiers de doc à lire d'abord, les étapes dans l'ordre, et se termine par la [`definition-of-done.md`](./definition-of-done.md).
 
+Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./new-project.md).
+
 ---
 
 ## Créer une feature

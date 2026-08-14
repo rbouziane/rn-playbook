@@ -84,7 +84,7 @@ Règle d'or : toute nouvelle convention récurrente s'encode en règle ESLint qu
 
 | Fichier | Rôle |
 |---|---|
-| `docs/` | 24 fichiers de conventions — index dans `REACT-NATIVE.md` |
+| `docs/` | 25 fichiers de conventions — index dans `REACT-NATIVE.md` |
 | `eslint.js` | Config ESLint partageable (règles encodables des docs) |
 | `CLAUDE.template.md` | CLAUDE.md de base à copier et customiser par projet |
 | `templates/agents/` | Agent `rn-reviewer`, installé dans `.claude/agents/` par `rn-playbook init` |

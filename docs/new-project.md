@@ -36,6 +36,12 @@ Puis créer la branche d'intégration attendue par gitflow (cf. [`git-workflow.m
 git checkout -b develop
 ```
 
+**Identité native, tout de suite** — la reprendre plus tard, une fois des services natifs déclarés dessus (Firebase, deep links, provisioning), coûte dix fois plus cher :
+
+- `applicationId` (`android/app/build.gradle`) et `PRODUCT_BUNDLE_IDENTIFIER` (Xcode) en reverse-DNS
+- Nom affiché : `android/app/src/main/res/values/strings.xml` et `Info.plist` (`CFBundleDisplayName`)
+- Icônes et splash sur les deux plateformes
+
 ## 2. Brancher le playbook
 
 ```sh
@@ -81,9 +87,10 @@ Une seule passe, puis `cd ios && pod install`. Chaque ligne est imposée par une
 | Storage | `react-native-mmkv` `react-native-keychain` | [`storage.md`](./storage.md) |
 | Listes & UI | `@shopify/flash-list` `react-native-edge-to-edge` `react-native-skeleton-placeholder` | [`performance.md`](./performance.md), [`platform.md`](./platform.md) |
 | Assets | `react-native-svg` `@d11/react-native-fast-image` + `-D react-native-svg-transformer` `react-native-asset` | [`assets.md`](./assets.md) |
-| i18n | `i18n-js` | [`i18n.md`](./i18n.md) |
+| i18n | `i18n-js` + `react-native-localize` (locale device) | [`i18n.md`](./i18n.md) |
 | Formulaires | `react-hook-form` (dès ~3 champs interdépendants) | [`forms.md`](./forms.md) |
 | Crash reporting | `@react-native-firebase/app` `@react-native-firebase/crashlytics` | [`data-fetching.md`](./data-fetching.md#gestion-derreur) |
+| Environnements | `react-native-config` | [`environment.md`](./environment.md) |
 | Build | `-D babel-plugin-react-compiler` `babel-plugin-transform-remove-console` `babel-plugin-module-resolver` | [`build-release.md`](./build-release.md) |
 | Tests | `-D @testing-library/react-native` `react-test-renderer` | [`testing.md`](./testing.md) |
 
@@ -142,6 +149,18 @@ module.exports = { assets: ['./app/shared/assets/fonts'] };
 
 Puis `npx react-native-asset` après chaque ajout de font.
 
+### Environnements
+
+Poser les trois environnements **avant la première feature** : rétro-ajouter des flavors Android et des schemes Xcode sur un projet vivant est un chantier natif. Fichiers `.env`, flavors, schemes et accès typé → [`environment.md`](./environment.md).
+
+### Firebase
+
+Les paquets seuls ne suffisent pas — sans les fichiers de config, l'app crashe au boot :
+
+- `google-services.json` → `android/app/`, + plugin `com.google.gms.google-services` déclaré dans les `build.gradle` (racine et app)
+- `GoogleService-Info.plist` → **ajouté au target via Xcode**, pas juste déposé dans le dossier `ios/` (sinon absent du bundle, crash uniquement en build device)
+- Un projet Firebase par environnement : ces fichiers se rangent par flavor et s'injectent en CI (cf. [`environment.md`](./environment.md#firebase--fichiers-de-config-par-environnement))
+
 ### `jest.setup.js`
 
 Mocker **une fois** les modules natifs (MMKV, keychain, crashlytics, reanimated, gesture-handler) et les déclarer dans `setupFiles` — jamais de mock natif recopié par fichier de test (cf. [`testing.md`](./testing.md#fixtures--mocks)).
@@ -163,6 +182,7 @@ Checklist de sortie de bootstrap :
 - [ ] Un `.svg` importé rend bien un composant
 - [ ] `console.log` absent d'un build release, `console.error` toujours présent
 - [ ] Un composant compilé par React Compiler (`useMemoCache` dans la sortie babel, cf. [`forms.md`](./forms.md#diagnostiquer))
+- [ ] Les 3 environnements buildent et s'installent **côte à côte** sur un même device
 - [ ] Build **release** lancé et navigué sur les deux plateformes — pas seulement debug
 - [ ] `yarn quality` vert, `yarn.lock` commité
 

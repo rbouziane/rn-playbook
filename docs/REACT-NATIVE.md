@@ -35,6 +35,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 | Plateforme & a11y | [`platform.md`](./platform.md) | Safe areas, barres système, iOS/Android, permissions, accessibilité |
 | i18n | [`i18n.md`](./i18n.md) | Ajout de string visible utilisateur |
 | Tests | [`testing.md`](./testing.md) | Écriture de tests, mocks, fixtures |
+| Environnements & config | [`environment.md`](./environment.md) | Ajout d'une clé de config, `.env`, flavor/scheme, secrets |
 | Build & release | [`build-release.md`](./build-release.md) | `babel.config.js`, gradle/ProGuard, paquet natif, QA release |
 | Conventions de nommage | [`naming.md`](./naming.md) | Tableau de référence à consulter au moindre doute |
 | Outillage & hygiène | [`best-practices.md`](./best-practices.md) | yarn, lint, typecheck, dépendances |
