@@ -6,6 +6,7 @@ Trois environnements, un fichier `.env` par environnement, une seule porte d'acc
 
 - Trois environnements : **`dev`**, **`preprod`**, **`prod`** — mêmes clés partout, jamais une clé qui n'existe que dans un seul
 - Config injectée par **`react-native-config`** : les valeurs sont **compilées dans le binaire**, pas lues au runtime
+- Le `.env` est choisi par le **flavor** (Android) et par la **configuration** Xcode (iOS) — jamais par la ligne de commande
 - **Aucun secret réel dans un `.env`** — tout ce qui est dans le binaire est extractible en quelques minutes (cf. [Secrets](#secrets--ce-qui-na-rien-à-faire-dans-un-env))
 - Accès uniquement via **`~shared/constants/Env`**, jamais `Config.XXX` dans un composant ou un service
 - `.env.*` **jamais commités** ; un `.env.example` commité liste les clés attendues, sans valeur
@@ -80,24 +81,71 @@ productFlavors {
 
 L'`applicationIdSuffix` est ce qui permet d'avoir les trois builds installés simultanément.
 
-### iOS
+Le nom affiché de prod reste dans `src/main/res/values/strings.xml` ; les `resValue` des autres flavors le **surchargent** (priorité flavor > main), il n'y a pas de conflit de ressource.
 
-Une **configuration** Xcode par environnement (Debug/Release dupliquées), et un **scheme** par environnement pointant dessus. Le fichier `.env` est choisi par la variable `ENVFILE` :
+Dès qu'il y a des flavors, il faut aussi lister les variants debuggables dans le bloc `react {}` d'`android/app/build.gradle` — la valeur par défaut ne connaît que `debug` / `debugOptimized`, qui ne matchent plus rien :
 
-```sh
-ENVFILE=.env.preprod yarn ios --scheme MonProjetPreprod
+```gradle
+react {
+    debuggableVariants = [
+        "devDebug", "devDebugOptimized",
+        "preprodDebug", "preprodDebugOptimized",
+        "prodDebug", "prodDebugOptimized",
+    ]
+}
 ```
 
+Sans ça le build passe quand même, mais le JS est **bundlé dans l'APK debug** au lieu d'être servi par Metro : plus de fast refresh, et un rebuild natif complet à chaque modification de code. Le symptôme se vérifie en listant l'APK — un `assets/index.android.bundle` dans un debug signale l'oubli.
+
+### iOS
+
+Une **configuration** Xcode par environnement (Debug/Release dupliquées, ex. `Debug-dev`, `Release-dev`), et un **scheme** par environnement pointant dessus.
+
 - Bundle identifier distinct par configuration (`com.monprojet.dev`, `.preprod`)
-- `Config` doit être ajouté au build phase du bon target, sinon les valeurs remontent vides **uniquement en build device**
 - Les schemes sont **partagés** (`Shared` coché dans Xcode) sinon ils ne sont pas commités et la CI ne les voit pas
+- Le nom affiché passe par un build setting (`APP_DISPLAY_NAME`) référencé depuis `Info.plist` (`CFBundleDisplayName`), défini par configuration
+
+**Déclarer les configurations dans le `Podfile`**, sinon CocoaPods range toute configuration qu'il ne connaît pas en *release* :
+
+```ruby
+project 'MonProjet', {
+  'Debug-dev' => :debug,     'Release-dev' => :release,
+  'Debug-preprod' => :debug, 'Release-preprod' => :release,
+  'Debug-prod' => :debug,    'Release-prod' => :release,
+}
+```
+
+`pod install` réussit sans, **sans erreur ni warning** — mais les pods (React Native inclus) se compilent alors optimisés et sans `DEBUG=1` dans les builds debug. Le contrôle : sur une configuration `Debug-*` du projet `Pods`, `SWIFT_OPTIMIZATION_LEVEL` doit valoir `-Onone` et `GCC_PREPROCESSOR_DEFINITIONS` contenir `DEBUG=1`.
+
+**Choisir le `.env` par configuration.** `react-native-config` lit la variable `ENVFILE` dans l'environnement de son script phase — et ce script phase vit sur la **target pod** `react-native-config`, qui n'hérite pas des build settings de la target app. Le poser sur l'app ne sert donc à rien : le `.env` n'est pas lu et `GeneratedDotEnv.m` sort vide, sans erreur de build. Le mapping se fait en `post_install` :
+
+```ruby
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    next unless target.name == 'react-native-config'
+
+    target.build_configurations.each do |build_configuration|
+      env = %w[dev preprod prod].find { |e| build_configuration.name.end_with?("-#{e}") }
+      next if env.nil?
+
+      build_configuration.build_settings['ENVFILE'] = ".env.#{env}"
+    end
+  end
+end
+```
+
+L'environnement est ainsi porté par la configuration : un build lancé depuis Xcode prend le bon `.env`, au lieu de retomber silencieusement sur `.env`. À défaut, il reste la variable de shell — `ENVFILE=.env.preprod yarn ios --scheme MonProjetPreprod` — mais elle n'engage que la ligne de commande.
 
 ### Scripts
 
+Un script par environnement et par plateforme. Le `.env` n'a pas à y figurer : il est déjà porté par le flavor (Android) et par la configuration (iOS).
+
 ```json
-"android:preprod": "ENVFILE=.env.preprod react-native run-android --mode=preprodDebug",
-"ios:preprod": "ENVFILE=.env.preprod react-native run-ios --scheme MonProjetPreprod"
+"android:preprod": "react-native run-android --mode=preprodDebug",
+"ios:preprod": "react-native run-ios --scheme MonProjetPreprod --mode Debug-preprod"
 ```
+
+Côté iOS, `--scheme` **et** `--mode` : le scheme seul laisse le CLI sur sa configuration par défaut, qui n'existe plus une fois `Debug`/`Release` remplacées par les configurations d'environnement.
 
 ## Accès dans le code
 

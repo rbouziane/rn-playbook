@@ -4,7 +4,8 @@ Bootstrap d'un projet React Native + TypeScript conforme au playbook, de la gén
 
 ## Règles en bref
 
-- **Pas d'Expo** : `npx @react-native-community/cli@latest init MonProjet --pm yarn` — RN nu, config native accessible
+- **Pas d'Expo** : `npx @react-native-community/cli@latest init MonProjet --version <x.y.z> --pm yarn` — RN nu, config native accessible
+- Version de RN dictée par **reanimated**, jamais par `latest` : son `peerDependencies` se vérifie **avant** de générer
 - Nom du projet en **PascalCase ASCII** sans tiret ni chiffre initial : il devient le module natif, le scheme Xcode et l'`applicationId`
 - Playbook branché **avant la première ligne de code** : `yarn add -D rbouziane/rn-playbook && npx rn-playbook init`
 - Tout le code applicatif vit sous **`app/`**, importé via l'alias `~` — jamais de source à la racine
@@ -18,10 +19,20 @@ Le détail ci-dessous. Chaque étape renvoie au fichier de doc qui fait autorit�
 
 ## 1. Générer le projet
 
+**Fixer la version de RN avant de générer.** `reanimated` compile contre les internals de RN et pince donc son peer sur quelques mineures ; il sort après RN. La dernière RN stable n'est en général pas encore couverte.
+
 ```sh
-npx @react-native-community/cli@latest init MonProjet --pm yarn
+npm info react-native-reanimated peerDependencies
+```
+
+Générer la version la plus haute que ce range couvre, en la passant explicitement :
+
+```sh
+npx @react-native-community/cli@latest init MonProjet --version <x.y.z> --pm yarn
 cd MonProjet
 ```
+
+Hors range, `yarn add` sort une erreur de peer sans recouvrement et le build natif casse ensuite sans message exploitable. La montée se fait plus tard, quand reanimated suit : un `yarn up` délibéré, jamais subi.
 
 - `npx react-native init` est **mort** : le template est passé au CLI communautaire, seule commande valable aujourd'hui
 - `--pm yarn` évite le `package-lock.json` que le playbook interdit (cf. [`best-practices.md`](./best-practices.md#gestionnaire-de-paquets--yarn-jamais-npm))
@@ -55,6 +66,8 @@ npx rn-playbook init
 
 Créer `app/` et y déplacer `App.tsx`. La structure cible (features, shared, navigators, api, i18n) est décrite dans [`architecture.md`](./architecture.md#arborescence-racine) — **ne créer que les dossiers réellement utilisés**, pas de squelette vide.
 
+Supprimer le `__tests__/` du template dans la foulée : les tests sont colocalisés, il n'y a pas de dossier de tests global (cf. [`testing.md`](./testing.md#localisation--naming)).
+
 L'alias se déclare à deux endroits, sous peine d'un typecheck vert et d'un runtime cassé :
 
 ```json
@@ -62,16 +75,19 @@ L'alias se déclare à deux endroits, sous peine d'un typecheck vert et d'un run
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": { "~*": ["app/*"] }
+    "paths": { "~*": ["./app/*"] }
   }
 }
 ```
 
+Pas de `baseUrl` : il est déprécié et sort en **erreur**. `paths` seul suffit, il se résout relativement au `tsconfig.json`.
+
 ```js
 // babel.config.js — résolution Metro à l'exécution
-['module-resolver', { root: ['./app'], alias: { '~': './app' } }],
+['module-resolver', { root: ['./app'], alias: { '^~(.+)': './app/\\1' } }],
 ```
+
+L'alias est une **regex**, pas la clé simple `'~'` : une clé simple ne matche que l'import `~` ou `~/quelque-chose`, alors que la convention écrit `~shared/theme`, sans slash après le `~`. Avec la clé simple, le typecheck passe (c'est `paths` qui le résout) et Metro échoue à l'exécution sur `Cannot find module '~shared/theme'` — exactement le double branchement que cette section impose.
 
 Mettre à jour l'`index.js` racine pour pointer sur `./app/App`.
 
@@ -92,7 +108,7 @@ Une seule passe, puis `cd ios && pod install`. Chaque ligne est imposée par une
 | Crash reporting | `@react-native-firebase/app` `@react-native-firebase/crashlytics` | [`data-fetching.md`](./data-fetching.md#gestion-derreur) |
 | Environnements | `react-native-config` | [`environment.md`](./environment.md) |
 | Build | `-D babel-plugin-react-compiler` `babel-plugin-transform-remove-console` `babel-plugin-module-resolver` | [`build-release.md`](./build-release.md) |
-| Tests | `-D @testing-library/react-native` `react-test-renderer` | [`testing.md`](./testing.md) |
+| Tests | `-D @testing-library/react-native` `test-renderer` | [`testing.md`](./testing.md) |
 
 Tout paquet natif ajouté ensuite suit la [procédure d'installation](./build-release.md#installer-un-paquet-natif--procédure) : compatibilité New Architecture, `pod install`, rebuild complet, QA release.
 
@@ -111,7 +127,7 @@ module.exports = api => {
     presets: ['module:@react-native/babel-preset'],
     plugins: [
       ['babel-plugin-react-compiler', { target: '19' }],
-      ['module-resolver', { root: ['./app'], alias: { '~': './app' } }],
+      ['module-resolver', { root: ['./app'], alias: { '^~(.+)': './app/\\1' } }],
       ...(isProduction
         ? [['transform-remove-console', { exclude: ['error', 'warn'] }]]
         : []),
@@ -120,6 +136,8 @@ module.exports = api => {
   };
 };
 ```
+
+`target` de react-compiler = le **major de React installé**, pas une valeur figée : il se met à jour avec React.
 
 Reanimated ≥ 4 : le plugin s'appelle `react-native-worklets/plugin` (paquet `react-native-worklets`). En ≤ 3, c'est `react-native-reanimated/plugin`. Dans les deux cas il reste **le dernier de la liste**, et toute modif du fichier impose `yarn start --reset-cache`.
 
