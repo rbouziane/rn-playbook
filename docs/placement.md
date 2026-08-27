@@ -2,6 +2,8 @@
 
 Table de décision unique pour le placement de tout nouveau code. Le critère universel : **appartenance au domaine métier**, jamais le nombre de consommateurs.
 
+Ce critère vaut aussi pour ce qui n'est pas un composant : les constantes, enums, hooks et types **d'un module** vivent dans le dossier de ce module (`shared/toast/constants/`, `shared/storage/constants/`), pas dans un dossier global rangé par type. `shared/constants/` et `shared/hooks/` n'accueillent que ce qui n'appartient à aucun module — c'est le dernier recours, pas le réflexe.
+
 ---
 
 ## Placement du code
@@ -23,7 +25,8 @@ Table de décision unique pour le placement de tout nouveau code. Le critère un
 | Type App (métier) d'une feature                 | `features/X/types/`                          | [`architecture.md`](./architecture.md)       |
 | Type App partagé                                | `shared/types/`                              | [`architecture.md`](./architecture.md)       |
 | Enum d'une feature                              | `features/X/enums/`                          | [`architecture.md`](./architecture.md)       |
-| Enum transverse (SCREEN_NAME, STORAGE_KEY…)     | `shared/constants/`                          | [`naming.md`](./naming.md)                   |
+| Enum / constante d'un module (STORAGE_KEY, SCREEN_NAME, QUERY_KEY…) | `<module>/constants/` — `shared/storage/constants/`, `navigators/constants/`, `api/constants/` | [`naming.md`](./naming.md) |
+| Enum / constante qui n'appartient à aucun module (ENV…) | `shared/constants/` — dernier recours        | [`naming.md`](./naming.md)                   |
 | Context scopé à une feature                     | `features/X/contexts/`                       | [`contexts.md`](./contexts.md)               |
 | Context global (theme, init…)                   | `shared/contexts/`                           | [`contexts.md`](./contexts.md)               |
 | Fonction pure utilitaire                        | `shared/utils/` (ou `features/X/` si métier) | [`architecture.md`](./architecture.md)       |
@@ -38,6 +41,7 @@ Rappels :
 
 - Ce qui sort d'une feature passe par son `index.ts` — tout le reste est privé
 - Un composant métier **reste dans sa feature** même si 3 autres features le consomment
+- Un module transverse (`shared/toast/`, `shared/storage/`) est autonome : ce qu'il possède vit chez lui, constantes comprises (cf. [`architecture.md`](./architecture.md#module-transverse-dans-shared))
 - En cas de doute composant hybride : préférer la composition (children, slots) à un composant à double casquette
 
 ---

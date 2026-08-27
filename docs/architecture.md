@@ -44,15 +44,32 @@ shared/
 │   └── components/     # Primitives UI génériques (Button, Divider, AppBottomSheet, Skeleton*)
 ├── layout/
 │   └── components/     # Échafaudage d'écran (ScreenContainer, top bars, ScreenCTA…)
-├── constants/    # Enums & constantes transverses (Screen, Storage, QueryKey, CacheTime…)
+├── constants/    # Constantes qui n'appartiennent à aucun module (Env…)
 ├── contexts/     # Contexts globaux (ThemeContext…)
 ├── hooks/        # Hooks agnostiques (useDebounce, useAppState…)
 ├── services/     # Services transverses (audio, haptics…) — modules non-React
-├── storage/      # MMKV, chiffrement (cf. storage.md)
+├── storage/      # Module MMKV : chiffrement, clés (cf. storage.md)
 ├── theme/        # Design tokens (cf. theming.md)
+├── toast/        # Module toast : composant, context, hook, constantes
 ├── types/        # Types partagés (types/api/ pour les types Api partagés)
 └── utils/        # Fonctions pures utilitaires (pas de hook, pas de side effect)
 ```
+
+### Module transverse dans `shared/`
+
+Un concern transverse qui pèse plus qu'un fichier (toast, storage, tooltip, file d'attente…) est un **module** : il porte lui-même ses composants, contexts, hooks, constantes et types, avec la même organisation qu'une feature.
+
+```
+shared/toast/
+├── components/   # ErrorToast
+├── constants/    # durées et configs d'animation du toast
+├── contexts/     # ToastContext (provider + selector)
+└── hooks/        # useToastAnimation
+```
+
+À l'intérieur du module, imports relatifs ; depuis l'extérieur, chemin complet (`~shared/toast/contexts/ToastContext`).
+
+Corollaire : `shared/constants/`, `shared/hooks/` et `shared/services/` ne sont **pas** des dépôts par type. On n'y met que ce qui n'appartient à aucun module (`Env`, `useDebounce`…). Une constante qui n'a qu'un module consommateur descend dans ce module (cf. [`placement.md`](./placement.md)).
 
 La distinction `ui/` vs `layout/` : une primitive **ui** s'utilise n'importe où dans un écran (bouton, divider, sheet) ; un composant **layout** structure l'écran lui-même (container avec insets, barre de titre, zone CTA). Tout écran se construit sur `ScreenContainer` (ou équivalent) plutôt qu'en regérant les insets à la main.
 

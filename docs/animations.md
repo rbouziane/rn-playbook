@@ -48,7 +48,7 @@ const Card = memo((props: Props) => {
 
 ## Physique centralisée
 
-Les durées et configs spring sont des **constantes partagées** (`~shared/constants/Animation` ou équivalent), pas des valeurs magiques éparpillées. Deux animations du même type (deux bottom sheets, deux press feedbacks) doivent avoir la même physique.
+Les durées et configs spring sont des **constantes**, pas des valeurs magiques éparpillées, et elles vivent dans le module qu'elles animent : `~shared/ui/constants/Animation` pour les primitives UI, `~shared/toast/constants/Animation` pour le toast. Deux animations du même type (deux bottom sheets, deux press feedbacks) partagent la même constante, donc la même physique.
 
 ```ts
 export const SPRING_CONFIG = {

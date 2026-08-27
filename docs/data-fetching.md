@@ -299,8 +299,8 @@ Pattern strict pour rester prévisible :
 
 ### Constantes
 
-- Clés de query/mutation centralisées dans `~shared/constants/QueryKey` (enum `QUERY_KEY`)
-- Durées de cache centralisées dans `~shared/constants/CacheTime` (`CACHE_TIME.HOUR_1`, `CACHE_TIME.HOUR_6`, `CACHE_TIME.INFINITY`…)
+- Clés de query/mutation centralisées dans `~api/constants/QueryKey` (enum `QUERY_KEY`)
+- Durées de cache centralisées dans `~api/constants/CacheTime` (`CACHE_TIME.HOUR_1`, `CACHE_TIME.HOUR_6`, `CACHE_TIME.INFINITY`…) — les deux appartiennent à la couche réseau, pas à `shared/constants/`
 
 ---
 

@@ -19,7 +19,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 
 **Lire d'abord :** [`navigation.md`](./navigation.md), [`hooks.md`](./hooks.md), [`i18n.md`](./i18n.md)
 
-1. Ajouter la clé dans l'enum `SCREEN_NAME` (`~shared/constants/Screen`)
+1. Ajouter la clé dans l'enum `SCREEN_NAME` (`~navigators/constants/Screen`)
 2. Choisir la stack selon la hiérarchie : écran racine d'onglet → mini-stack de l'onglet ; écran profond → details stack ; écran d'auth → tunnel stack
 3. Ajouter l'entrée dans le `XxxParamList` de la stack (params = identifiants primitifs uniquement)
 4. Créer `features/X/screens/mon-ecran-screen.tsx` — le screen ne contient **aucune logique** : il appelle `useMonEcranScreenLogic()` et compose des composants
@@ -38,7 +38,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 3. Fonction dans `services/api.ts` : fetch via l'instance centralisée + throw, suffixe `Api`
 4. Reducer pur dans `services/reducer.ts` (`XxxApi → Xxx`)
 5. Hook dans `services/hook.ts` : suffixe `Query`/`Mutation`, reducer dans le `queryFn` avec `try/catch`, retours nommés
-6. Clé dans `QUERY_KEY` (`~shared/constants/QueryKey`), durées via `CACHE_TIME`
+6. Clé dans `QUERY_KEY` (`~api/constants/QueryKey`), durées via `CACHE_TIME`
 7. Clés d'erreur i18n (`error.[domaine].[clé]`) dans toutes les locales
 8. Si consommé hors de la feature : exporter le hook dans `index.ts`
 9. → [`definition-of-done.md`](./definition-of-done.md)

@@ -13,7 +13,7 @@ MMKV chiffré, Keychain, persister TanStack Query, versioning du cache.
 - **Pattern fallback → secure** au boot : MMKV non chiffré dispo immédiatement, migration auto vers MMKV chiffré une fois la clé Keychain prête
 - **Versioning du cache** (`MODEL_VERSION`) pour invalider l'intégralité du cache lors d'un changement breaking du shape des données stockées
 - **Une seule façon d'accéder au storage** : `getMMKV()`. Jamais d'instance MMKV créée ailleurs
-- Clés centralisées dans l'enum `STORAGE_KEY` (`~shared/constants/Storage`)
+- Clés centralisées dans l'enum `STORAGE_KEY` (`~shared/storage/constants/StorageKey`) — dans le module, pas dans `shared/constants/`
 
 ### Clé de chiffrement (Keychain)
 
@@ -171,7 +171,7 @@ Lecture et écriture **synchrones**, via `getMMKV()` directement. Pas besoin d'a
 
 ```ts
 import { getMMKV } from '~shared/storage/mmkv';
-import { STORAGE_KEY } from '~shared/constants/Storage';
+import { STORAGE_KEY } from '~shared/storage/constants/StorageKey';
 
 // Read
 const token = getMMKV().getString(STORAGE_KEY.AUTH_TOKEN);
@@ -201,7 +201,7 @@ const preferences = raw ? (JSON.parse(raw) as UserPreferences) : null;
 Comme toutes les enums : SCREAMING_SNAKE_CASE pour le nom et les clés.
 
 ```ts
-// ~shared/constants/Storage.ts
+// ~shared/storage/constants/StorageKey.ts
 export enum STORAGE_KEY {
   AUTH_TOKEN = 'AUTH_TOKEN',
   USER_PREFERENCES = 'USER_PREFERENCES',

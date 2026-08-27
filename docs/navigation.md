@@ -20,7 +20,7 @@ Le détail ci-dessous.
 
 - **Navigators** → `app/navigators/` (PascalCase, ex : `AppNavigator.tsx`, `ItemsStack.tsx`)
 - **Écrans** → `features/X/screens/screen-name.tsx` (kebab-case + suffixe `-screen`)
-- Constantes de noms d'écrans/stacks → `~shared/constants/Screen` (enums `SCREEN_NAME`, `STACK_NAME`)
+- Constantes de noms d'écrans/stacks → `~navigators/constants/Screen` (enums `SCREEN_NAME`, `STACK_NAME`)
 
 ### Règles générales
 
@@ -53,7 +53,7 @@ const Stack = createNativeStackNavigator<ItemsStackParamList>();
 import { memo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { themeScreen } from '~shared/theme/themeScreen';
-import { SCREEN_NAME } from '~shared/constants/Screen';
+import { SCREEN_NAME } from '~navigators/constants/Screen';
 import { translate } from '~i18n/translate';
 import { ScreenOptions } from './AppNavigator';
 import ItemsScreen from '~features/items/screens/items-screen';
