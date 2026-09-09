@@ -57,8 +57,10 @@ module.exports = {
         // A custom family resolves by name on both platforms. Asking it for a
         // weight >= 700 makes Android look for `<family>_bold.ttf` alone and
         // fall back to the *system* face — silently, and iOS-clean.
+        // `:has()` matches descendants, so the child combinator is what keeps
+        // the report on the offending style and off its StyleSheet wrapper.
         selector:
-          'ObjectExpression:has(Property[key.name="fontFamily"]):has(Property[key.name="fontWeight"])',
+          'ObjectExpression:has(> Property[key.name="fontFamily"]):has(> Property[key.name="fontWeight"])',
         message:
           'fontWeight à côté d\'une fontFamily custom : la graisse est portée par la famille, une par graisse (docs/assets.md#fonts).',
       },
