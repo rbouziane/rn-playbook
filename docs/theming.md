@@ -140,6 +140,12 @@ export const typography: Record<string, TextStyle> = {
 <Text style={{ fontSize: 32, fontWeight: '700' }}>Titre</Text>
 ```
 
+`fontWeight` ne vaut que pour la police système. Dès qu'une **font custom** est posée, la graisse est portée par la famille — une par graisse, jamais les deux propriétés ensemble (cf. [`assets.md`](./assets.md#fonts)) :
+
+```ts
+h1: { fontSize: 32, fontFamily: fonts.bold, lineHeight: 42 },
+```
+
 ---
 
 ## Colors

@@ -53,6 +53,15 @@ module.exports = {
         message:
           'watch() dans un tableau de dépendances fait bail out React Compiler sur tout le composant — extraire la valeur via useWatch (docs/forms.md).',
       },
+      {
+        // A custom family resolves by name on both platforms. Asking it for a
+        // weight >= 700 makes Android look for `<family>_bold.ttf` alone and
+        // fall back to the *system* face — silently, and iOS-clean.
+        selector:
+          'ObjectExpression:has(Property[key.name="fontFamily"]):has(Property[key.name="fontWeight"])',
+        message:
+          'fontWeight à côté d\'une fontFamily custom : la graisse est portée par la famille, une par graisse (docs/assets.md#fonts).',
+      },
     ],
 
     'no-restricted-imports': [

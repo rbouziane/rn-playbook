@@ -65,6 +65,44 @@ import BombSvg from '~shared/assets/svg/bomb.svg';
 
 - Fichiers dans `shared/assets/fonts/`, déclarés côté natif (`react-native.config.js` + `npx react-native-asset` ou link manuel)
 - Jamais consommées directement : les `fontFamily` vivent dans `shared/theme/fonts.ts` et sont exposées via les styles de `theme.typography`
+- **Un fichier par graisse**, nommé comme son nom PostScript — et **jamais de `fontWeight` à côté** d'une `fontFamily` custom
+
+### Un fichier par graisse
+
+React Native ne sait pas piocher une graisse dans une famille custom : sur les deux plateformes, une police custom se résout **par son nom**. Chaque graisse est donc son propre fichier, et ce nom est la valeur de `fontFamily`.
+
+Le nom du fichier doit être **le nom PostScript de la police** (`Inter-SemiBold.ttf` → `Inter-SemiBold`) : Android résout par nom de fichier, iOS par nom PostScript, et seul ce nommage satisfait les deux. Ne poser que les graisses réellement consommées par `theme.typography` — chaque fichier pèse quelques centaines de Ko dans le bundle.
+
+```ts
+// shared/theme/fonts.ts
+export const fonts = {
+  regular: 'Inter-Regular',
+  medium: 'Inter-Medium',
+  semiBold: 'Inter-SemiBold',
+  bold: 'Inter-Bold',
+} as const;
+```
+
+### Jamais de `fontWeight` ni de `fontStyle`
+
+La graisse est portée par la **famille**. Un `fontWeight` posé à côté d'une `fontFamily` custom est un piège **silencieux et Android-only** — la même ligne rend parfaitement sur iOS.
+
+`ReactFontManager` cherche le fichier sous `fonts/<fontFamily><extension>.ttf`, où l'extension vaut `_bold` dès que le poids demandé atteint 700 (et `_italic` sur un `fontStyle: 'italic'`). Avec `fontFamily: 'Inter-Bold'` + `fontWeight: '700'`, il cherche donc `fonts/Inter-Bold_bold.ttf`, ne le trouve pas — et ne retombe **pas** sur `Inter-Bold.ttf` mais sur la police **système**. Tout le gras de l'app perd la font custom, sans le moindre warning.
+
+```ts
+// ❌ Android : rendu en police système
+bold: { fontSize: 24, fontFamily: fonts.bold, fontWeight: '700' },
+
+// ✅
+bold: { fontSize: 24, fontFamily: fonts.bold },
+```
+
+Le lint attrape les deux propriétés dans le même objet ; il ne voit pas la surcharge posée sur un token étalé, qui tombe dans le même piège :
+
+```ts
+// ❌ un token dédié, pas une surcharge
+message: { ...theme.typography.body, fontWeight: '500' },
+```
 
 ## Sons
 

@@ -78,6 +78,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 
 - Valeurs de style uniquement via le **theme** (`theme.xxx` ou `useTheme()`) — jamais de hex, spacing ou fontSize en dur
 - Icônes = **fichiers `.svg` en `currentColor`** importés comme composants — jamais de SVG inline JSX
+- Font custom = **un fichier par graisse** (`fontFamily: fonts.bold`), jamais de `fontWeight` à côté
 - Toute string visible utilisateur via `translate()`, dans **toutes** les locales
 
 ### Performance

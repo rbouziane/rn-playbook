@@ -91,6 +91,15 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 2. Couleurs en `currentColor` dans le fichier — jamais de hex en dur, jamais de SVG inline en JSX
 3. Importer comme composant (svg-transformer) et colorer via la prop `color`/`fill` depuis le theme
 
+## Ajouter une font custom
+
+**Lire d'abord :** [`assets.md`](./assets.md#fonts)
+
+1. Un fichier **par graisse** dans `shared/assets/fonts/`, nommé comme son nom PostScript (`Inter-SemiBold.ttf`) — seulement les graisses que `theme.typography` consomme
+2. `npx react-native-asset`, puis **rebuild natif** : un reload Metro ne suffit pas
+3. Déclarer les familles dans `shared/theme/fonts.ts`, les câbler dans `theme.typography`
+4. Purger tout `fontWeight` de l'app : la graisse vient de la famille, sinon Android retombe en silence sur la police système
+
 ## Installer un paquet
 
 **Lire d'abord :** [`best-practices.md`](./best-practices.md), [`build-release.md`](./build-release.md) si natif
