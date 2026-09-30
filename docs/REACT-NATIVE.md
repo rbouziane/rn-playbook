@@ -21,7 +21,9 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 |---|---|---|
 | Nouveau projet | [`new-project.md`](./new-project.md) | Bootstrap d'un projet from scratch : init CLI, socle de dépendances, configs |
 | Arborescence, placement, types | [`architecture.md`](./architecture.md) | Création de feature, nouveau fichier, type ou enum |
-| Composants, code style, skeletons | [`components.md`](./components.md) | Création/édition de tout composant `.tsx` |
+| Composants & code style | [`components.md`](./components.md) | Création/édition de tout composant `.tsx` |
+| États de chargement | [`loading.md`](./loading.md) | Écran ou composant qui attend une donnée : skeleton, apparition animée, fin de chargement |
+| Skeletons | [`skeletons.md`](./skeletons.md) | Création d'un composant `SkeletonXxx` |
 | Hooks de logique | [`hooks.md`](./hooks.md) | Logique d'écran, hook métier, `useEffect` |
 | Contexts | [`contexts.md`](./contexts.md) | Création/édition d'un context, état partagé entre écrans |
 | Theming & design tokens | [`theming.md`](./theming.md) | Ajout de couleur, spacing, style de texte, dark mode |

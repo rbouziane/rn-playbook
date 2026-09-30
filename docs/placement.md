@@ -30,8 +30,8 @@ Ce critère vaut aussi pour ce qui n'est pas un composant : les constantes, enum
 | Context scopé à une feature                     | `features/X/contexts/`                       | [`contexts.md`](./contexts.md)               |
 | Context global (theme, init…)                   | `shared/contexts/`                           | [`contexts.md`](./contexts.md)               |
 | Fonction pure utilitaire                        | `shared/utils/` (ou `features/X/` si métier) | [`architecture.md`](./architecture.md)       |
-| Skeleton d'un composant de feature              | à côté de son composant, préfixe `Skeleton`  | [`components.md`](./components.md#skeletons) |
-| Skeleton générique (SkeletonText…)              | `shared/ui/components/`                         | [`components.md`](./components.md#skeletons) |
+| Skeleton d'un composant de feature              | à côté de son composant, préfixe `Skeleton`  | [`skeletons.md`](./skeletons.md) |
+| Skeleton générique (SkeletonText…)              | `shared/ui/components/`                         | [`skeletons.md`](./skeletons.md) |
 | Asset (SVG, image, son) propre à une feature    | `features/X/assets/`                         | [`assets.md`](./assets.md)                   |
 | Asset transverse                                | `shared/assets/svg|images|fonts|sounds/`     | [`assets.md`](./assets.md)                   |
 | Design token (couleur, spacing, texte)          | `shared/theme/`                              | [`theming.md`](./theming.md)                 |

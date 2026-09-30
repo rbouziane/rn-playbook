@@ -21,7 +21,7 @@ Checklist de livraison. Toute tâche (feature, écran, composant, fix) est **aut
 
 - [ ] Aucune valeur en dur : couleurs/spacing/typo via `theme.xxx` ou `useTheme()`
 - [ ] Si des couleurs ont été touchées : rendu vérifié en **light ET dark**
-- [ ] États couverts : loading (skeleton), erreur, vide (pour les listes)
+- [ ] États couverts : loading (skeleton pour le certain, apparition animée pour l'incertain — cf. [`loading.md`](./loading.md)), erreur, vide (pour les listes)
 
 ## i18n
 

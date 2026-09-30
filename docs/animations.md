@@ -103,5 +103,5 @@ return <GestureDetector gesture={pan}>{/* ... */}</GestureDetector>;
 ## Quand ce n'est PAS une animation reanimated
 
 - Transition d'écran → React Navigation la gère (options de stack)
-- Skeleton/shimmer de chargement → composants Skeleton (cf. [`components.md`](./components.md#skeletons))
+- Skeleton/shimmer de chargement → composants Skeleton (cf. [`skeletons.md`](./skeletons.md)) ; quoi skeletonner, quoi animer à l'arrivée → [`loading.md`](./loading.md)
 - Calcul lourd déclenché après une animation → `InteractionManager.runAfterInteractions` (cf. [`performance.md`](./performance.md))

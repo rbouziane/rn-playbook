@@ -26,7 +26,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 5. Créer le hook de logique dans `features/X/hooks/useMonEcranScreenLogic.ts`
 6. Déclarer le `Stack.Screen` avec `ScreenOptions({ title: translate('...') })`
 7. Titre + toutes les strings dans **toutes** les locales
-8. Prévoir les états : loading (skeleton), erreur (`ErrorState`), vide si liste
+8. Prévoir les états : loading (cf. [`loading.md`](./loading.md)), erreur (`ErrorState`), vide si liste
 9. → [`definition-of-done.md`](./definition-of-done.md)
 
 ## Brancher un endpoint API
@@ -52,7 +52,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 3. Structure : imports → `type Props` → composant `memo()` → `StyleSheet.create()` → `export default`
 4. Props non déstructurées, sans valeur par défaut, ordre données → état → callbacks
 5. Theming via `theme.xxx` (ou `useTheme()` si couleurs dynamiques — jamais les deux)
-6. Strings via `translate()` ; si chargement asynchrone visible → créer le `SkeletonXxx` à côté
+6. Strings via `translate()` ; si chargement asynchrone visible → cf. [`loading.md`](./loading.md) (skeleton à côté du composant, cf. [`skeletons.md`](./skeletons.md))
 7. > ~100 lignes → découper (sous-composants, hook)
 8. → [`definition-of-done.md`](./definition-of-done.md)
 

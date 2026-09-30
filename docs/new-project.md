@@ -101,7 +101,7 @@ Une seule passe, puis `cd ios && pod install`. Chaque ligne est imposée par une
 | Animations & gestes | `react-native-reanimated` `react-native-gesture-handler` | [`animations.md`](./animations.md) |
 | Data | `@tanstack/react-query` `axios` | [`data-fetching.md`](./data-fetching.md) |
 | Storage | `react-native-mmkv` `react-native-keychain` | [`storage.md`](./storage.md) |
-| Listes & UI | `@shopify/flash-list` `react-native-edge-to-edge` `react-native-skeleton-placeholder` | [`performance.md`](./performance.md), [`platform.md`](./platform.md) |
+| Listes & UI | `@shopify/flash-list` `react-native-edge-to-edge` `react-native-skeleton-placeholder` | [`performance.md`](./performance.md), [`platform.md`](./platform.md), [`skeletons.md`](./skeletons.md) |
 | Assets | `react-native-svg` `@d11/react-native-fast-image` + `-D react-native-svg-transformer` `react-native-asset` | [`assets.md`](./assets.md) |
 | i18n | `i18n-js` + `react-native-localize` (locale device) | [`i18n.md`](./i18n.md) |
 | Formulaires | `react-hook-form` (dès ~3 champs interdépendants) | [`forms.md`](./forms.md) |
