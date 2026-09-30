@@ -10,6 +10,7 @@ Saisie utilisateur : état, validation, clavier, soumission.
 - Soumission = mutation `mutateAsync` (cf. [`data-fetching.md`](./data-fetching.md)) avec état pending sur le bouton
 - Le clavier ne doit jamais masquer le champ actif ni le bouton de soumission
 - `react-hook-form` : lire un champ dans un composant enfant **toujours** via `useWatch`, jamais `methods.watch()` — sinon la valeur gèle derrière un ancêtre compilé (section dédiée en bas)
+- Multi-sélection dont les options viennent de l'API → **un seul champ tableau d'ids** (`Controller` sur `number[]`), jamais un champ booléen par option : les noms de champs deviennent dynamiques, un point ou un espace dans un libellé casse le chemin `react-hook-form`, et la soumission doit reconstruire le tableau
 
 ---
 

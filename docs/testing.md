@@ -9,6 +9,7 @@ Quoi tester, où, comment. Lancer avec `yarn test` (Jest, preset React Native).
 - Pas de snapshots massifs de composants — un composant se vérifie par ses règles + l'app qui tourne
 - Test colocalisé : `xxx.test.ts` à côté du fichier testé
 - Un `it` = un comportement ; libellés en anglais, descriptifs (`it('maps null description to null')`)
+- **Un test doit pouvoir échouer** : casser volontairement le code visé (retirer le garde, inverser la condition) et vérifier que le test rougit avant de le garder
 
 ---
 
@@ -53,6 +54,8 @@ describe('itemReducer', () => {
 - Ne pas mocker ce qu'on teste ; mocker uniquement les frontières (natif, réseau, temps)
 - Temps : `jest.useFakeTimers()` pour les timers, jamais de `setTimeout` réel dans un test
 - Comportement par plateforme : `jest.replaceProperty(Platform, 'OS', 'android')` dans un `beforeEach` (restauré automatiquement) — jamais de mock du module `Platform` entier
+- Mocker un seul export d'une lib : `{ ...jest.requireActual('lib'), useX: … }`, pour que les autres exports restent réels
+- Test de perf (re-render, layout) : **compter ce qui coûte**, par exemple les appels au setter de `useLayoutState` via un mock de FlashList. Compter les renders d'un enfant `memo()` ne prouve rien : le memo les absorbe même quand le parent refait le travail
 
 ## Hooks — `renderHook`
 

@@ -70,8 +70,21 @@ Règles strictes pour ne pas casser le recyclage :
 - **`renderItem` et `keyExtractor` toujours `useCallback`**
 - **L'item est `memo()`** (cf. [`components.md`](./components.md))
 - **`getItemType`** dès qu'il y a des types d'items différents (ex : header vs row vs footer) — permet à FlashList d'avoir un pool de recyclage par type, gros gain de fluidité
-- Pour mapper sur un tableau dans un item, utiliser **`useMappingHelper`** de FlashList plutôt que `.map()` (gère les keys de manière compatible avec le recyclage)
+- Pour mapper sur un tableau dans un item, utiliser **`useMappingHelper`** de FlashList plutôt que `.map()` (gère les keys de manière compatible avec le recyclage) : `key={getMappingKey(child.id, index)}`. Une `key={child.id}` fait démonter et remonter tous les enfants dès que l'item est recyclé pour d'autres données
 - Items lourds : éviter tout calcul coûteux dans le render. Mémoïser (`useMemo`) ou pré-calculer dans le reducer
+- **Un état local d'item doit suivre la donnée**, pas l'instance : un `useState` survit au recyclage et reste celui de l'item précédent (image en erreur → placeholder affiché sur l'item suivant). Dériver l'état de la donnée (stocker l'URL en échec, pas un booléen) ou utiliser **`useRecyclingState`**, remis à zéro quand l'item change
+- **État qui change la taille d'un item → `useLayoutState`**, jamais `useState` : FlashList ne remesure pas un item re-rendu par son propre état et le laisse chevaucher le suivant. Chaque appel au setter relance un layout de la liste : filtrer d'abord les valeurs inchangées
+- **Juger la fluidité sur un build release**, jamais en Debug : Metro et les vérifications de dev font saccader une liste fluide en production (cf. [`build-release.md`](./build-release.md))
+
+#### Aligner le contenu des cellules d'une rangée
+
+Grille construite à la main (un item FlashList = une rangée de cartes) dont un élément de hauteur variable — un titre sur une ou deux lignes — décale ce qui suit d'une carte à l'autre :
+
+- Ni `justifyContent: 'space-between'` (pousse le bas de la carte courte au fond de la rangée), ni hauteur fixe réservée (une ligne vide dans toutes les rangées où rien ne passe à la ligne)
+- Mesurer l'élément via **`onLayout`** — `onTextLayout` n'existe pas sur react-native-web — et le mesurer **lui**, pas son conteneur : la `minHeight` appliquée au conteneur se mesurerait elle-même et ne redescendrait jamais
+- Hauteurs dans un **`Map` par id** créé une fois au niveau de la liste (`useRef`) et passé aux rangées : une rangée recyclée pour des items déjà mesurés s'aligne sans nouveau layout
+- La rangée applique la plus grande hauteur à toutes ses cartes **une fois tous ses items mesurés**, et ne demande qu'alors un layout (`useLayoutState`) — un seul par rangée, au lieu d'un par carte
+- Le callback de mesure lit les items via une `ref` : chaque mise à jour de la donnée fournit un nouveau tableau, et un callback qui en dépend re-rend toutes les cartes mémoïsées
 
 ### Règles transverses (FlatList & FlashList)
 
@@ -259,3 +272,5 @@ Avant de livrer un écran, vérifier :
 - [ ] Les images distantes utilisent le composant image avec cache
 - [ ] Les animations passent par `react-native-reanimated`
 - [ ] Les Contexts sont splittés ou consommés via `useContextSelector`
+- [ ] Items FlashList : enfants mappés via `useMappingHelper`, aucun état local lié à l'item précédent, taille pilotée par `useLayoutState`
+- [ ] La fluidité des listes est jugée sur un build release

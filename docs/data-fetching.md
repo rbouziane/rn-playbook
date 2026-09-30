@@ -65,6 +65,8 @@ export const itemReducer = (data: ItemApi): Item => {
 };
 ```
 
+**Champ ajouté à l'API → valeur par défaut dans le reducer.** Le cache persisté (cf. [`storage.md`](./storage.md)) contient des réponses d'avant le champ, et le reducer passé en `select` tourne aussi sur elles : `tags: data.tags ?? []`, sinon un `.length` plante au premier lancement après la mise à jour. `MODEL_VERSION` reste réservé aux changements breaking — l'incrémenter vide tout le cache pour un simple ajout.
+
 ---
 
 ### Queries
@@ -205,6 +207,8 @@ export const useItemsInfiniteQuery = () => {
 - **`mutateAsync` par défaut** (permet de `await` pour navigation, toast, etc.). `mutate` uniquement pour fire-and-forget (analytics, log non-bloquant)
 - `mutationKey` **uniquement si plusieurs mutations du même type peuvent tourner en parallèle**. Sinon, omettre
 - `onSuccess` (invalidation de queries) géré dans le hook par défaut, sauf cas spécifique au composant
+- **Invalider toutes les queries qui portent une copie de l'entité**, pas seulement la sienne : le nom d'une catégorie renvoyé dans chaque produit se périme dans la liste des produits si seule `CATEGORIES` est invalidée. Regrouper ces invalidations dans une fonction du `hook.ts` (`invalidateCategoryCopies(queryClient)`) appelée par update et delete
+- **Ne jamais renvoyer un champ que le formulaire n'a pas chargé** : une entité ouverte depuis un cache d'avant le champ l'a `undefined`, le formulaire l'initialise à vide, et la soumission efface la valeur serveur. Omettre le champ (côté API : absent = inchangé) tant que l'entité ne l'avait pas — logique à sortir dans une fonction pure testée
 - Optimistic updates **à utiliser dès que c'est possible** (UX immédiate)
 
 #### Hook de mutation

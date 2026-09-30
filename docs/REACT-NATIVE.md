@@ -88,6 +88,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 - Tout enfant `memo()` doit recevoir des **props à références stables** (`useMemo`, `useCallback` côté parent)
 - **Animations via `react-native-reanimated`** uniquement (worklets UI thread)
 - Images distantes via un composant image avec **cache**
+- Items FlashList **recyclage-safe** : enfants mappés via `useMappingHelper`, aucun état local qui survit à l'item précédent, taille pilotée par `useLayoutState` (cf. [`performance.md`](./performance.md))
 - **Mesurer avant d'optimiser** (outil de debug du projet)
 - **Pas de `console.*` comme logging de prod** — strippés des builds release (cf. [`build-release.md`](./build-release.md)), erreurs prod via le crash reporter
 
