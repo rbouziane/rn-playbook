@@ -30,7 +30,7 @@ Pas de skeleton pour un élément incertain : un skeleton promet un contenu. S'i
 - **Tout skeleton se termine** : succès → contenu, échec sans donnée → `ErrorState`. Jamais de query `enabled: false` derrière un skeleton : elle reste `isPending` indéfiniment
 - **Refetch avec des données en cache** (pull-to-refresh, invalidation) : les données restent affichées, pas de retour au skeleton
 - **Variante d'écran inconnue** (contenu ou état vide selon la donnée) : skeleton de la zone commune, puis la variante — pas un spinner seul
-- **Apparition d'un élément incertain** : s'il s'insère au-dessus d'autre contenu, animer l'opacité **et** la hauteur, sinon tout ce qui suit saute d'un coup. `entering={FadeIn}` seul ne convient qu'à un élément sans contenu après lui dans le flux (cf. [`animations.md`](./animations.md#entering--exiting)). Primitive partagée type `AnimatedFadeCollapse` dans `shared/` : opacité + hauteur mesurée, réutilisée partout plutôt que réécrite par écran
+- **Apparition d'un élément incertain** : s'il s'insère au-dessus d'autre contenu, animer l'opacité **et** la hauteur, sinon tout ce qui suit saute d'un coup. `entering={FadeIn}` seul ne convient qu'à un élément sans contenu après lui dans le flux (cf. [`animations.md`](./animations.md#entering--exiting)). Une seule primitive partagée dans `shared/` (ex. `AnimatedCollapse`) anime opacité **et** hauteur mesurée, réutilisée partout plutôt que réécrite par écran. Un simple fondu, même avec un léger glissement, ne compte pas : il fait sauter ce qui suit
 
 ## Pattern
 
@@ -46,11 +46,11 @@ const ItemScreen = memo(() => {
     <ScreenContainer>
       <Text style={styles.sectionTitle}>{translate('item.historyTitle')}</Text>
       {logic.item ? <ItemHeader item={logic.item} /> : <SkeletonItemHeader />}
-      <AnimatedFadeCollapse visible={logic.item?.promotion != null}>
+      <AnimatedCollapse isVisible={logic.item?.promotion != null}>
         {logic.item?.promotion != null && (
           <ItemPromotionCard promotion={logic.item.promotion} />
         )}
-      </AnimatedFadeCollapse>
+      </AnimatedCollapse>
     </ScreenContainer>
   );
 });
