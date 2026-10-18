@@ -104,6 +104,20 @@ Le lint attrape les deux propriétés dans le même objet ; il ne voit pas la su
 message: { ...theme.typography.body, fontWeight: '500' },
 ```
 
+Seule exception : le `theme.fonts` de React Navigation, dont le type `FontStyle` **exige** un `fontWeight`. Mettre `'normal'` partout — sous le seuil de 700, Android ne cherche pas de fichier `_bold` et garde la famille — et désactiver la règle sur ce seul bloc, commentaire à l'appui :
+
+```ts
+// React Navigation's FontStyle requires fontWeight; 'normal' stays below
+// Android's _bold lookup threshold, so the custom family is kept.
+/* eslint-disable no-restricted-syntax */
+fonts: {
+  regular: { fontFamily: fonts.regular, fontWeight: 'normal' },
+  bold: { fontFamily: fonts.bold, fontWeight: 'normal' },
+  // …
+},
+/* eslint-enable no-restricted-syntax */
+```
+
 ## Sons
 
 - Fichiers dans `shared/assets/sounds/` (ou `features/X/assets/` si propres à une feature)
