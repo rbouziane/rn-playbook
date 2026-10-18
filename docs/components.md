@@ -13,6 +13,7 @@ Règles d'écriture des composants React Native et style général du code. Skel
 - Rendu conditionnel : booléen strict à gauche du `&&` (`count > 0 &&`, jamais `count &&`)
 - Accolades obligatoires, early return, pas d'`else` après `return`
 - Le code respire : lignes vides entre blocs, mais pas dans le bloc imports ni dans le JSX
+- Tout élément pressable passe par le `Pressable` partagé (`~shared/ui/components/Pressable`) — jamais celui de `react-native`, jamais de style `({ pressed })` ni d'`android_ripple`
 - Skeletons : cf. [`skeletons.md`](./skeletons.md)
 
 Le détail et les exemples ci-dessous.
@@ -292,7 +293,24 @@ const handlePress = useCallback(() => {
 return <Pressable onPress={handlePress} />;
 ```
 
-**Exception** : la fonction de style de `Pressable` (`style={({ pressed }) => [...]}`) est l'API canonique RN pour l'état pressé — elle reste inline. `Pressable` n'est pas `memo()`, un `useCallback` ici serait de l'overhead sans gain (cf. [`performance.md`](./performance.md#usecallback)).
+### Pressable partagé
+
+Un seul composant pressable dans l'app : `shared/ui/components/Pressable`, avec une implémentation par plateforme. Le retour visuel est natif et uniforme — aucun écran ne le réinvente.
+
+| Plateforme | Fichier | Retour au toucher |
+|---|---|---|
+| iOS | `Pressable.tsx` | Scale 0.96 + fondu 0.7 en worklet, délai de 140 ms (`unstable_pressDelay`) pour qu'un scroll réclame le geste avant que la ligne ne s'allume |
+| Android | `Pressable.android.tsx` | `Touchable` de react-native-gesture-handler 3 : le touch est confié à `View.onTouchEvent`, ripple natif sous le doigt, couleur déduite du fond |
+
+Règles :
+
+- **`accessibilityRole` obligatoire**, choisi selon ce que fait l'élément : `button`, `link` (ouvre une URL), `radio` + `isChecked` (choix exclusif), `checkbox` / `switch` + `isChecked` (bascule)
+- **Pas de style `({ pressed })`** ni de couleur « pressed » : le retour est porté par le composant. Une `opacity` ou un `transform` posés dans `style` sont écrasés sur iOS par l'animation
+- **Pas d'opacité « disabled » maison** : passer `disabled`, le composant atténue
+- `isBorderless` pour une icône sans forme propre (ripple sans bord sur Android)
+- Exception : un fond de modale qui ferme au tap (`backdrop`) et un déclencheur caché gardent le `Pressable` de `react-native` (alias `RNPressable`) — un retour visuel y serait faux (la modale entière rétrécirait)
+
+Le ripple Android est découpé aux coins arrondis par un patch de gesture-handler (`.yarn/patches/react-native-gesture-handler-*.patch`), à reporter à chaque montée de version de la lib.
 
 ---
 
