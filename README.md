@@ -64,7 +64,7 @@ Le package fournit de quoi relire le code produit contre les conventions :
 - l'agent `rn-reviewer` (lecture seule, calé sur les docs de `node_modules/rn-playbook/docs/`, s'appuie sur `yarn lint`) ;
 - la commande `/review` qui le déclenche sur le diff courant, en vérifiant qualité, perfs et conformité.
 
-Claude Code ne scanne pas `node_modules` : `npx rn-playbook init` copie l'agent dans `.claude/agents/` et la commande dans `.claude/commands/`. À relancer après chaque `yarn up rn-playbook` — le kit est rafraîchi, tes fichiers perso préservés.
+Claude Code ne scanne pas `node_modules` : `npx rn-playbook init` copie l'agent dans `.claude/agents/` et la commande dans `.claude/commands/`. À relancer après chaque montée de version (cf. [Mise à jour des conventions](#mise-à-jour-des-conventions)) — le kit est rafraîchi, tes fichiers perso préservés.
 
 Le reste du pilotage passe par le prompt : le `CLAUDE.md` fait déjà pointer Claude vers les docs, donc « crée-moi tel écran » ou « écris les tests » suivent les conventions sans commande dédiée.
 
@@ -74,7 +74,7 @@ Les conventions évoluent **ici**, jamais dans les projets consommateurs :
 
 1. Modifier la doc (et `eslint.js` si la règle est encodable) dans ce repo
 2. Committer, pusher, tagger si le changement est notable
-3. Dans chaque projet, monter la version : `yarn up rn-playbook` (commit `⬆️`) — le changement de règle est ainsi un acte délibéré, projet par projet. Un `yarn install` seul ne suffit pas : `yarn.lock` épingle le commit
+3. Dans chaque projet, monter la version : `yarn up "rn-playbook@github:rbouziane/rn-playbook"` (commit `⬆️`) — le specifier complet est requis, un `yarn up rn-playbook` nu échoue (`can't be resolved to a satisfying range`) sur une dépendance GitHub — le changement de règle est ainsi un acte délibéré, projet par projet. Un `yarn install` seul ne suffit pas : `yarn.lock` épingle le commit
 
 Pour tester une modif localement avant de la pusher : `yarn link <chemin-vers-rn-playbook>` dans le projet, puis revenir à la version GitHub une fois validée.
 
