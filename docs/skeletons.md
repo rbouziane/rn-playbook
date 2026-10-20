@@ -7,6 +7,8 @@ Comment écrire un skeleton de chargement : où le placer, avec quelles dimensio
 - Préfixe `Skeleton` sur le fichier et le composant
 - Skeleton métier à côté du composant qu'il mime ; skeleton générique dans `shared/ui/components/`
 - `width` / `height` explicites, jamais `flex: 1` seul
+- Barre de texte : hauteur = taille de police, centrée dans la hauteur de ligne
+- Ne mime que ce que la donnée attend — pas ce qui reste affiché pendant le chargement (footer fixe, en-tête statique)
 - Couleurs via les tokens sémantiques du theme
 - Règles composants habituelles (`memo()`, props non déstructurées, `StyleSheet` en bas)
 
@@ -30,6 +32,9 @@ Avantage : un skeleton de feature reste collé à son composant — si on modifi
 
 - Préfixe **`Skeleton`** sur le fichier et le composant
 - `SkeletonPlaceholder` avec `width` / `height` **explicites** (jamais `flex: 1` seul)
+- **Barre de texte** : `height` = taille de police, `marginVertical` = `(lineHeight - fontSize) / 2`. Une barre de la hauteur de ligne pleine colle à la ligne suivante, alors que le vrai texte laisse de l'air sous ses lettres ; la ligne garde ainsi sa hauteur réelle
+- **Ne mime que la zone qui attend la donnée** : un élément rendu pendant le chargement (CTA dans un footer fixe, en-tête statique) n'a pas de double dans le skeleton, sinon il apparaît deux fois
+- **Combien de lignes** : le cas le plus probable s'il est quasi systématique, sinon le minimum garanti (cf. [`loading.md`](./loading.md#règles))
 - Couleurs via des tokens sémantiques du theme (`theme.colors.skeletonBase`, `theme.colors.skeletonHighlight`)
 - Suit toutes les règles composants ci-dessus : `memo()`, pas de déstructuration, `StyleSheet` en bas, `export default` à la fin
 
