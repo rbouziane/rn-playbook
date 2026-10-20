@@ -28,6 +28,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 À réserver aux contenus courts non-virtualisés. Pour toute liste qui scrolle vraiment beaucoup, passer à `FlatList` ou `FlashList`.
 
+- Les **screens n'importent jamais de ScrollView** directement : ils composent les layouts partagés (`shared/layout/`), qui portent le choix du composant
+- Exception tolérée : le `ScrollView` de `react-native` **dans un layout partagé** dont le contenu héberge des gestes Pan de gesture-handler (ex : drag-to-reorder capturé par le scroll de gesture-handler), avec un `eslint-disable-next-line no-restricted-imports -- <raison>`. Avant d'y recourir, essayer `simultaneousWithExternalGesture` sur le geste imbriqué
+
 ### FlatList — règles d'optim
 
 ```tsx

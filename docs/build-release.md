@@ -48,6 +48,10 @@ Actif via `babel-plugin-react-compiler` (**premier plugin** de `babel.config.js`
 - Il ne remplace pas les règles `memo()`/`useCallback`/`useMemo` de [`performance.md`](./performance.md) : on les garde (le compiler bail out silencieusement sur le code qu'il ne sait pas prouver sûr)
 - Une deps list qui n'est pas faite d'expressions simples (`x`, `x.y.z`) fait **bail out le composant entier**, sans erreur ni warning — typiquement un appel de fonction dans le tableau
 - Conséquence pour `react-hook-form` : un enfant qui lit via `methods.watch()` gèle derrière un ancêtre compilé, cf. [`forms.md`](./forms.md)
+- Appeler `props.onX()` dans un `useCallback` fait dépendre le compiler de **tout** l'objet `props` (appel de méthode) : deps `[props.onX]` incompatibles → bail out « Existing memoization could not be preserved ». Lier d'abord le callback à une constante locale (`const onX = props.onX;`, sans destructuring) et l'utiliser dans le callback et ses deps. Un `useCallback` qui ne fait que relayer `props.onX` se supprime : passer `props.onX` directement
+- Écrire une ref pendant le render (`ref.current = props.x`, pattern « latest ref ») ou la lire pour le rendu fait bail out (« Cannot access refs during render ») : faire l'écriture dans un `useLayoutEffect` sans deps
+- Le compiler **recalcule les deps** d'un `useMemo`/`useCallback` à partir de son corps : une dep volontairement non lue (clé de « forçage », ex : recréer des gestes après un réordonnancement) est **silencieusement retirée**. Soit la lire réellement dans la factory, soit sortir le hook du compiler avec la directive `'use no memo'` en tête de fonction, commentée
+- Reanimated : `sv.get()` / `sv.set(x)` plutôt que `sv.value` (muter `.value` d'une valeur retournée par un hook fait bail out le composant)
 
 Vérifier ce que le compilateur fait réellement d'un fichier :
 
@@ -58,6 +62,8 @@ npx babel <fichier> --plugins babel-plugin-react-compiler
 ## R8/ProGuard Android
 
 `enableProguardInReleaseBuilds = true` + `shrinkResources` dans `android/app/build.gradle` : bundle minifié et ressources shrinkées en release.
+
+- **Ressources chargées par nom depuis JS** (`res/raw` de `react-native-sound`, etc.) : le shrinker ne les voit pas et les supprime. Avec AGP 9 (shrinker intégré à R8), un `res/raw/keep.xml` (`tools:keep`, même avec noms explicites et `shrinkMode="safe"`) a été **ignoré** — constaté sur La Bombinette. Si l'app a de telles ressources : pas de `shrinkResources`, ou vérifier l'APK (`aapt2 dump resources app-release.apk | grep raw/`) avant de livrer
 
 - Les règles keep spécifiques vivent dans `android/app/proguard-rules.pro` (exigées par les docs des SDKs concernés)
 - Si un crash release pointe une classe manquante (`ClassNotFoundException`), ajouter la règle `-keep` du SDK concerné dans ce fichier — **ne jamais désactiver R8 globalement**
