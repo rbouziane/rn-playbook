@@ -35,6 +35,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 | Formulaires & inputs | [`forms.md`](./forms.md) | Champ de saisie, validation, clavier, soumission |
 | Assets | [`assets.md`](./assets.md) | Ajout de SVG, image, font, son |
 | Plateforme & a11y | [`platform.md`](./platform.md) | Safe areas, barres système, iOS/Android, permissions, accessibilité |
+| Grands écrans | [`adaptive-layout.md`](./adaptive-layout.md) | Tout écran ou composant dimensionné selon l'écran : tablette, pliable, grilles, carrousels, images pleine largeur |
 | i18n | [`i18n.md`](./i18n.md) | Ajout de string visible utilisateur |
 | Tests | [`testing.md`](./testing.md) | Écriture de tests, mocks, fixtures |
 | Environnements & config | [`environment.md`](./environment.md) | Ajout d'une clé de config, `.env`, flavor/scheme, secrets |
@@ -57,6 +58,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 - **Pas de styles inline** — `StyleSheet.create()` en bas du fichier
 - **`export default` à la toute fin** du fichier
 - **Aucune logique dans un screen** — état, effets et callbacks vivent dans un hook `useXxxScreenLogic` (`features/X/hooks/`)
+- **Tout écran marche sur téléphone, tablette et pliable déplié** — tailles dérivées de la largeur de layout via le module partagé, jamais `isTablet()` ni `Dimensions` figé (cf. [`adaptive-layout.md`](./adaptive-layout.md))
 
 ### Code
 

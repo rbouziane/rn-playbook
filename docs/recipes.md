@@ -17,7 +17,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 
 ## Ajouter un écran
 
-**Lire d'abord :** [`navigation.md`](./navigation.md), [`hooks.md`](./hooks.md), [`i18n.md`](./i18n.md)
+**Lire d'abord :** [`navigation.md`](./navigation.md), [`hooks.md`](./hooks.md), [`i18n.md`](./i18n.md), [`adaptive-layout.md`](./adaptive-layout.md)
 
 1. Ajouter la clé dans l'enum `SCREEN_NAME` (`~navigators/constants/Screen`)
 2. Choisir la stack selon la hiérarchie : écran racine d'onglet → mini-stack de l'onglet ; écran profond → details stack ; écran d'auth → tunnel stack
@@ -27,7 +27,8 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 6. Déclarer le `Stack.Screen` avec `ScreenOptions({ title: translate('...') })`
 7. Titre + toutes les strings dans **toutes** les locales
 8. Prévoir les états : loading (cf. [`loading.md`](./loading.md)), erreur (`ErrorState`), vide si liste
-9. → [`definition-of-done.md`](./definition-of-done.md)
+9. Grands écrans (cf. [`adaptive-layout.md`](./adaptive-layout.md)) : layout d'écran standard (ou exception bord à bord justifiée), header qui gère le haut sans status bar, tailles via le module layout partagé ; vérifier téléphone, tablette, pliable déplié
+10. → [`definition-of-done.md`](./definition-of-done.md)
 
 ## Brancher un endpoint API
 
@@ -45,7 +46,7 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 
 ## Ajouter un composant
 
-**Lire d'abord :** [`components.md`](./components.md), [`placement.md`](./placement.md)
+**Lire d'abord :** [`components.md`](./components.md), [`placement.md`](./placement.md), [`adaptive-layout.md`](./adaptive-layout.md) si une taille dépend de l'écran
 
 1. Placement selon [`placement.md`](./placement.md) (feature vs `shared/`, sous-dossier par écran si la feature en a)
 2. Fichier PascalCase, un composant public par fichier

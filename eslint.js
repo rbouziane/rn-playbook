@@ -64,6 +64,13 @@ module.exports = {
         message:
           'fontWeight à côté d\'une fontFamily custom : la graisse est portée par la famille, une par graisse (docs/assets.md#fonts).',
       },
+      {
+        // Read once at module load, it stays wrong after a fold or a split view resize.
+        selector:
+          "Program > VariableDeclaration CallExpression[callee.object.name='Dimensions'][callee.property.name='get']",
+        message:
+          'Dimensions.get() au niveau module reste figé après un pliage ou un redimensionnement — useWindowDimensions() ou le module layout partagé (docs/adaptive-layout.md).',
+      },
     ],
 
     'no-restricted-imports': [
@@ -80,6 +87,12 @@ module.exports = {
             name: '@react-native-async-storage/async-storage',
             message:
               'AsyncStorage interdit — MMKV via getMMKV() (docs/storage.md).',
+          },
+          {
+            name: 'react-native-device-info',
+            importNames: ['isTablet'],
+            message:
+              "isTablet() répond sur l'appareil, pas sur la place disponible : faux sur un pliable déplié — largeur de layout via le module partagé (docs/adaptive-layout.md).",
           },
           {
             name: 'react-native-fast-image',

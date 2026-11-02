@@ -37,6 +37,7 @@ Règles :
 - Les composants réutilisables **ne consomment pas les insets eux-mêmes** — c'est l'écran (ou son layout) qui les applique, sinon ils s'additionnent
 - Listes : le clearance bas passe par `contentContainerStyle={{ paddingBottom: insets.bottom }}`, pas par un padding sur la liste (le scroll doit aller sous la barre)
 - Écran avec header React Navigation : le header gère déjà le top — ne pas ajouter `insets.top`
+- Insets **latéraux** (barres système sur le côté d'un pliable déplié) : consommés une fois par le layout d'écran standard, cf. [`adaptive-layout.md`](./adaptive-layout.md#barres-système-latérales)
 
 ## Barres système
 
