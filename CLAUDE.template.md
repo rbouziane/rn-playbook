@@ -31,6 +31,7 @@ Convention complète : `node_modules/rn-playbook/docs/git-workflow.md`. L'essent
   - Emojis : ✨ feat · 🐛 fix · ♻️ refactor · 🎨 UI · ⚡ perf · 📝 docs · ✅ tests · 🔧 config · ⬆️ deps · 🚀 release
 - Scopes de ce projet : `[<Feature1>]`, `[<Feature2>]`, … + transverses `[Shared]`, `[Navigation]`, `[Docs]`, `[Build]`
 - Bump de version : `🚀 Upgrades to v5.48.0 - build 672` (sans scope)
+- Finir une `release/*` ou un `hotfix/*` : merge `--no-ff` dans `main` **et** dans `develop` + tag, d'un bloc ; jamais de fast-forward de `main`, jamais de rebase d'une branche partagée
 - `yarn quality` vert avant tout commit ; jamais de push/merge sans demande explicite
 
 ## Violations fréquentes à ne pas reproduire

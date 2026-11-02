@@ -1,10 +1,12 @@
 # Git & livraison
 
-Le projet suit **gitflow**. Conventions de branches, de commits, et ce qui doit être vrai avant de committer.
+Le projet suit **gitflow**. Conventions de branches, de commits, finish des releases et hotfix, et ce qui doit être vrai avant de committer.
 
 ## Règles en bref
 
 - **Gitflow** : `main` = production uniquement, `develop` = intégration, tout travail passe par une branche `feature/*`
+- **Finir** une `release/*` ou un `hotfix/*` = merge `--no-ff` dans `main` + tag + merge `--no-ff` dans `develop`, d'un bloc (cf. [Finir une release ou un hotfix](#finir-une-release-ou-un-hotfix))
+- **Jamais** de fast-forward de `main`, jamais de rebase d'une branche partagée (`main`, `develop`, `release/*`, `hotfix/*`)
 - Messages : `<emoji> [Scope] Message` — anglais, impératif, une seule ligne — `🐛 [Premium] Fix paywall colors`, pas `Some fix`
 - Un commit = un changement cohérent ; gros travail → plusieurs commits logiques
 - `yarn quality` **vert avant chaque commit**
@@ -14,6 +16,8 @@ Le projet suit **gitflow**. Conventions de branches, de commits, et ce qui doit 
 ---
 
 ## Branches (gitflow)
+
+`main` désigne la branche de production : elle s'appelle `master` dans certains projets, la règle est la même.
 
 | Branche | Rôle | Part de | Merge vers |
 | --- | --- | --- | --- |
@@ -29,7 +33,47 @@ Règles :
 
 - **On ne commite jamais directement sur `main`**, et sur `develop` uniquement pour du trivial (typo, bump de doc) — par défaut, tout passe par une `feature/*`
 - Une branche feature vit **court** : une tâche, mergée dès que la [`definition-of-done.md`](./definition-of-done.md) est verte
-- Chaque merge sur `main` est **tagué** (`v1.2.0`) ; `release/*` et `hotfix/*` sont re-mergées dans `develop` pour ne rien perdre
+- Chaque merge sur `main` est **tagué**, au format des tags existants (`git tag --sort=-creatordate | head -3` : `1.2.0` ou `v1.2.0`) ; `release/*` et `hotfix/*` sont re-mergées dans `develop` pour ne rien perdre
+- Un `hotfix/*` part du **tag de prod**, jamais de `develop` ni d'une feature : `develop` contient du travail pas encore livrable
+
+## Finir une release ou un hotfix
+
+Préférer l'outil gitflow (`git flow release finish 1.2.0`, `git flow hotfix finish 1.2.1`, ou le gitflow de GitKraken) : il fait exactement ces étapes. À la main, **d'un bloc, sans rien pousser entre deux étapes** :
+
+```sh
+# 1. Production
+git checkout main && git pull
+git merge --no-ff release/1.2.0 -m "Merge branch 'release/1.2.0'"
+git tag -a 1.2.0 -m ""
+
+# 2. Back-merge dans develop
+git checkout develop && git pull
+git merge --no-ff release/1.2.0 -m "Merge branch 'release/1.2.0' into develop"
+# conflits résolus → yarn quality vert → git commit
+
+# 3. Ménage
+git branch -d release/1.2.0
+```
+
+Pousser ensuite `main`, `develop` et le tag, puis supprimer la branche distante — sur demande explicite uniquement.
+
+Vérifier que le finish est complet :
+
+```sh
+git log --oneline -1 main                 # Merge branch 'release/1.2.0'
+git tag --points-at main                  # 1.2.0
+git log --oneline --no-merges develop..main   # vide : tout ce qui est en prod est dans develop
+```
+
+### Pièges
+
+- **`git merge` sans `--no-ff` sur `main`** : `main` avance en fast-forward jusqu'à la tête de la branche. Pas de commit de merge, la MR vers `main` devient vide, et l'historique ne montre plus ce qui a été livré quand. Non rattrapable sans force-push sur `main`
+- **Le back-merge est un merge, pas un backport** : ni cherry-pick, ni rebase. Ne jamais rebaser une `release/*` ou un `hotfix/*` sur `main`, ni `develop` sur `main` : `develop` avance en parallèle de `main`, un rebase réécrit l'historique partagé et duplique les commits
+- **Le back-merge n'est pas optionnel** : sans lui, la release suivante part de `develop` sans les correctifs livrés, et la prod régresse
+- **Une résolution de conflit est du code** : un fichier renommé sur la release et modifié sur `develop` garde son **nouveau** nom, ses imports suivent. `yarn quality` vert **avant** de conclure le merge — un back-merge qui ne compile pas casse `develop` pour toute l'équipe
+- **MR ou merge local, pas les deux** : via une MR/PR (GitLab, GitHub), choisir la méthode « merge commit », jamais fast-forward, squash ou rebase. Si le finish a été fait en local, la MR se ferme seule au push (sa source est déjà dans la cible) : ne pas la re-merger ni l'annuler avant le push
+- **Commit cherry-pické dans un hotfix depuis une feature non mergée** : la feature est ensuite **supprimée**, c'est le back-merge qui amène ses commits dans `develop`. La merger en plus duplique les commits (hashes différents) et sème des conflits
+- **Re-bump** (build refusé par un store, numéro déjà pris) : nouveau commit au même format `🚀 Upgrades to v1.2.1 - build 43`, jamais `Update bump version`
 
 ## Messages de commit
 

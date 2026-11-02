@@ -57,7 +57,7 @@ export const useLoginScreenLogic = () => {
 ## `TextInput` — conventions
 
 - Toujours préciser ce qui aide la saisie : `keyboardType`, `autoCapitalize`, `autoComplete`, `textContentType` (autofill iOS), `returnKeyType`
-- `returnKeyType="next"` + `onSubmitEditing` pour chaîner les champs ; le dernier champ soumet
+- `returnKeyType="next"` + `onSubmitEditing` pour chaîner les champs
 - Un champ custom réutilisable (`AppTextInput`) vit dans `shared/ui/components/` et encapsule le style theme + l'affichage d'erreur
 
 ## Clavier

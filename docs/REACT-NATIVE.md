@@ -41,7 +41,7 @@ Ce fichier est l'**index unique** de la doc. Lire le sous-fichier correspondant 
 | Build & release | [`build-release.md`](./build-release.md) | `babel.config.js`, gradle/ProGuard, paquet natif, QA release |
 | Conventions de nommage | [`naming.md`](./naming.md) | Tableau de référence à consulter au moindre doute |
 | Outillage & hygiène | [`best-practices.md`](./best-practices.md) | yarn, lint, typecheck, dépendances |
-| Git & livraison | [`git-workflow.md`](./git-workflow.md) | Commit, découpage, branches |
+| Git & livraison | [`git-workflow.md`](./git-workflow.md) | Commit, découpage, branches, finir une release ou un hotfix |
 
 ---
 

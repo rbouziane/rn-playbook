@@ -106,3 +106,12 @@ Bootstrap d'un projet neuf (init CLI, socle, configs) → [`new-project.md`](./n
 
 1. `yarn add <pkg>` (jamais npm) ; committer `yarn.lock`
 2. Si natif : suivre la procédure de [`build-release.md`](./build-release.md#installer-un-paquet-natif--procédure) (pod install, rebuild, QA release)
+
+## Livrer une release ou un hotfix
+
+**Lire d'abord :** [`git-workflow.md`](./git-workflow.md#finir-une-release-ou-un-hotfix)
+
+1. `release/x.y.z` part de `develop`, `hotfix/x.y.z` part du tag de prod
+2. Commit de bump `🚀 Upgrades to vx.y.z - build N` (iOS + Android), QA sur build release
+3. Finish d'un bloc : merge `--no-ff` dans `main`, tag, merge `--no-ff` dans `develop`, `yarn quality` vert sur `develop`
+4. Vérifier : `git log --oneline --no-merges develop..main` est vide
