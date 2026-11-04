@@ -31,6 +31,26 @@ import { ScrollView } from 'react-native-gesture-handler';
 - Les **screens n'importent jamais de ScrollView** directement : ils composent les layouts partagés (`shared/layout/`), qui portent le choix du composant
 - Exception tolérée : le `ScrollView` de `react-native` **dans un layout partagé** dont le contenu héberge des gestes Pan de gesture-handler (ex : drag-to-reorder capturé par le scroll de gesture-handler), avec un `eslint-disable-next-line no-restricted-imports -- <raison>`. Avant d'y recourir, essayer `simultaneousWithExternalGesture` sur le geste imbriqué
 
+### Rangées horizontales
+
+Toute rangée qui défile horizontalement passe par **un des deux composants partagés** de `shared/` (noms indicatifs, le projet documente les siens dans son `CLAUDE.md`) — jamais un `ScrollView` / `FlatList` horizontal monté à la main (lint) :
+
+| Rangée | Composant partagé |
+|---|---|
+| Courte (cartes, tags, vignettes — < ~50 items) | `HorizontalScrollView` : `ScrollView` de gesture-handler |
+| Longue, virtualisée | `OptimizedFlatList<T>` : `FlatList` de gesture-handler, générique (`data`, `renderItem`, `keyExtractor`) |
+
+Ils portent une fois pour toutes :
+
+- `horizontal` + `showsHorizontalScrollIndicator={false}`
+- **`alwaysBounceHorizontal={false}`** : React Native l'active par défaut dès qu'on passe `horizontal`, contrairement à UIKit. Une rangée qui tient à l'écran rebondit alors sous le doigt et laisse croire qu'il y a plus à voir. Désactivé, elle ne bouge plus ; une rangée qui déborde défile et rebondit normalement. Android n'affiche déjà aucun effet de bord sans contenu à faire défiler
+- Le **calage sur les cartes** (`HorizontalScrollView`, prop `cardSnap={{ cardWidth, gap, padding }}`) : le composant applique lui-même `gap` et `paddingHorizontal` au contenu **et** en dérive `snapToOffsets` (cf. [`adaptive-layout.md`](./adaptive-layout.md#grilles-et-carrousels)) — mise en page et calage ne peuvent pas diverger. Le nombre de cartes se compte sur les enfants (`Children.toArray`, qui ignore les `null` des rendus conditionnels)
+
+Exceptions — mêmes trois props posées à la main, en commentant pourquoi :
+
+- Scroll animé par Reanimated (`Animated.createAnimatedComponent`, `useAnimatedScrollHandler`) : il lui faut le composant natif, pas un wrapper
+- Carrousel paginé plein écran (`pagingEnabled`)
+
 ### FlatList — règles d'optim
 
 ```tsx

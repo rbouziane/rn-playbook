@@ -9,7 +9,7 @@ Tout écran est conçu pour trois formats dès sa première version : téléphon
 - Dimensionner le contenu sur la **largeur de layout** (frame safe-area moins insets latéraux, hook partagé du projet) — jamais `useWindowDimensions().width`, qui inclut les barres latérales
 - Un **seuil grand écran unique** (600 pt de largeur de layout), centralisé dans le module layout du projet — pas de seuil local
 - Grilles : nombre de colonnes **dérivé de la largeur** (hook partagé), jamais une constante
-- Carrousels : **n + 1 cartes visibles** sur grand écran, la dernière coupée ; calage à gauche via un calcul d'offsets partagé
+- Carrousels : **n + 1 cartes visibles** sur grand écran ; quand toutes les cartes tiennent, elles **remplissent la ligne** et rien ne défile, sinon la suivante dépasse dans la marge de fin ; calage à gauche via un calcul d'offsets partagé
 - Images pleine largeur : hauteur **bornée** (part de la hauteur de fenêtre) + `cover` — jamais rétrécies et centrées
 - Barres système sur le côté (insets gauche/droite non nuls, plus d'inset en haut) : le **layout d'écran standard** les consomme une fois ; le header remplace l'espace de la status bar absente — jamais une bande fixe
 - Vérifier téléphone **et** tablette **et** pliable déplié, plus un redimensionnement à chaud
@@ -26,7 +26,8 @@ Tout ce qui calcule une taille selon l'écran vit dans **un seul module** de `sh
 | Grand écran ? | `useIsLargeScreen()` — sur la largeur de layout |
 | Colonnes d'une grille | `useGridColumnsCount()` |
 | Cartes visibles d'un carrousel | `useCarouselVisibleCards(phoneCount)` → `phoneCount + 1` sur grand écran |
-| Offsets de calage d'un carrousel | `getCarouselSnapOffsets({ count, cardWidth, gap, padding })` |
+| Largeur de carte d'un carrousel | `getCarouselCardWidth({ layoutWidth, count, visibleCards, gap, padding })` |
+| Offsets de calage d'un carrousel | `getCarouselSnapOffsets({ count, cardWidth, gap, padding })` — porté par le composant de rangée horizontale (cf. [`performance.md`](./performance.md#rangées-horizontales)) |
 | Hauteur d'une image pleine largeur | `useBoundedImageHeight(ratio, margins)` |
 | Espace en haut sans status bar | `useTopEdgePadding(base)` |
 
@@ -63,7 +64,24 @@ export const getCarouselSnapOffsets = (params: CarouselSnapParams) =>
   );
 ```
 
-- Largeur de carte = `(layoutWidth - paddings - gaps) / visibleCards` ; `visibleCards` vient du hook, la valeur téléphone reste celle du design
+- Largeur de carte via `getCarouselCardWidth` ; `visibleCards` vient du hook, la valeur téléphone reste celle du design :
+
+```ts
+// Cards fill the row when they all fit; otherwise the next one peeks into the trailing padding
+export const getCarouselCardWidth = (params: CarouselCardWidthParams) => {
+  const hasOverflow = params.count > params.visibleCards;
+
+  return (
+    (params.layoutWidth -
+      params.padding * 2 -
+      params.gap * (hasOverflow ? params.visibleCards : params.visibleCards - 1)) /
+    params.visibleCards
+  );
+};
+```
+
+- Pas de carte coupée qui « donne envie » de faire défiler une rangée qui tient : 2 cartes sur 2 places remplissent la ligne. Sur grand écran, moins de cartes que de places laisse la fin de ligne vide, c'est assumé
+- Design à cartes fractionnaires (« 1,5 carte visible », bannière + bout de la suivante) : formule directe `(layoutWidth - paddings - gaps) / visibleCards`, la coupe est voulue
 - Calage à gauche (`snapToOffsets` + `decelerationRate="fast"`), jamais centré : la carte précédente ne doit pas dépasser
 - Bannières pleine largeur : une carte + un bout de la suivante, même sur grand écran
 - Skeleton d'une grille ou d'un carrousel : même nombre de colonnes / cartes que le contenu (cf. [`skeletons.md`](./skeletons.md))

@@ -65,6 +65,14 @@ module.exports = {
           'fontWeight à côté d\'une fontFamily custom : la graisse est portée par la famille, une par graisse (docs/assets.md#fonts).',
       },
       {
+        // A hand-rolled horizontal row forgets alwaysBounceHorizontal={false} or the snap
+        // math; the shared row components carry them (disable there, with the reason).
+        selector:
+          "JSXOpeningElement[name.name=/^(ScrollView|FlatList|FlashList)$/] > JSXAttribute[name.name='horizontal']",
+        message:
+          'Rangée horizontale : composant partagé (HorizontalScrollView / OptimizedFlatList) — rebond et calage y sont portés (docs/performance.md#rangées-horizontales).',
+      },
+      {
         // Read once at module load, it stays wrong after a fold or a split view resize.
         selector:
           "Program > VariableDeclaration CallExpression[callee.object.name='Dimensions'][callee.property.name='get']",
